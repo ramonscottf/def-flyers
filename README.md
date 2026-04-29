@@ -36,7 +36,7 @@ Replaces Peachjar (parent flyers) and DSD Ads (employee blasts) with one Foundat
 - **Cache:** KV (`dsd-flyers-kv`) for sessions, rate limits, short links
 - **AI:** Claude Sonnet 4.6 (vision/extraction) + Haiku 4.5 (translation/moderation/SMS)
 - **Embeddings:** `@cf/baai/bge-base-en-v1.5` (768-dim, must match `skippy-memory`)
-- **Email:** Postmark (transactional) + AWS SES (bulk)
+- **Email:** Resend (transactional, Phase 1) → AWS SES (bulk parent digests, Phase 3+)
 - **SMS:** Twilio Charity 10DLC (Phase 2)
 - **Payments:** Stripe (separate flyer-revenue account, Phase 3)
 - **Staff auth:** Microsoft Entra ID (OIDC PKCE — Bateman provisions the app reg)
