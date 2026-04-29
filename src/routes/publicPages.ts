@@ -253,20 +253,6 @@ pages.get('/board', async (c) => {
 </body></html>`);
 });
 
-// ─── GET /unsubscribe ──────────────────────────────────────────────────────
-// Handled in §2.6 (subscriber opt-in). Stub here so the link in emails
-// doesn't 404 before that ships.
-pages.get('/unsubscribe', async (c) => {
-  return c.html(
-    `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Unsubscribe</title>
-<style>body{font-family:system-ui;margin:60px auto;max-width:480px;padding:0 24px;color:#0d1b3d}</style>
-</head><body>
-<h1>Unsubscribe</h1>
-<p>This page is being finished. If you want to be removed from DEF Flyers right away, email <a href="mailto:info@daviskids.org">info@daviskids.org</a>.</p>
-</body></html>`,
-  );
-});
-
 const STRINGS = {
   en: {
     title: 'Flyer board',

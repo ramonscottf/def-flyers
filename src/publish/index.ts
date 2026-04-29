@@ -117,14 +117,19 @@ async function findMatchingSubscribers(
   flyer: FlyerRow,
   schoolIds: string[],
 ): Promise<MatchedSubscriber[]> {
-  // Step 1: pull all active+verified subscribers whose audience matches.
+  // Step 1: pull all active+verified subscribers whose audience matches and
+  // who aren't on the email suppression list.
   // Volume is low at launch, so post-filter the JSON school overlap in JS
   // rather than wrestling with json_each + dynamic IN lists.
   const { results } = await env.DB.prepare(
-    `SELECT id, email, audience, school_ids, language, unsubscribe_token
-     FROM subscriptions
-     WHERE active = 1 AND verified = 1
-       AND (audience = ? OR audience = 'both' OR ? = 'both')`,
+    `SELECT s.id, s.email, s.audience, s.school_ids, s.language, s.unsubscribe_token
+     FROM subscriptions s
+     WHERE s.active = 1 AND s.verified = 1
+       AND (s.audience = ? OR s.audience = 'both' OR ? = 'both')
+       AND NOT EXISTS (
+         SELECT 1 FROM suppressions sp
+         WHERE sp.channel = 'email' AND sp.identifier = s.email
+       )`,
   )
     .bind(flyer.audience, flyer.audience)
     .all<SubscriberRow>();
