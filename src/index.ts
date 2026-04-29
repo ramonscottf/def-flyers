@@ -5,6 +5,7 @@ import { logger } from 'hono/logger';
 import { renderLanding } from './routes/landing';
 import publicApi from './routes/public';
 import submitterApi from './routes/submitter';
+import submitterPages from './routes/submitterPages';
 import adminApi from './routes/admin';
 
 export type Bindings = {
@@ -80,6 +81,9 @@ app.get('/', async (c) => {
     flyers: stats?.published_count ?? 0,
   }));
 });
+
+// ─── Submitter pages (magic-link form, verify) ───────────────────────────
+app.route('/', submitterPages);
 
 // ─── API routes ──────────────────────────────────────────────────────────
 app.route('/api/public', publicApi);
