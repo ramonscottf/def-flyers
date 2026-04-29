@@ -14,6 +14,7 @@ import { requireSession, type AppVariables } from '../auth/session';
 import { ulid } from '../lib/ulid';
 import { slugWithSuffix } from '../lib/slug';
 import { analyze } from '../lib/readability';
+import { runAiPipeline } from '../ai/pipeline';
 
 const api = new Hono<{ Bindings: Bindings; Variables: AppVariables }>();
 
@@ -697,8 +698,14 @@ api.post('/flyer/:id/finalize', async (c) => {
     ).bind(now, now, id, user.id),
   ]);
 
-  // §2.3 will hook the AI pipeline in here via ctx.waitUntil. For now we
-  // just transition status; the reviewer queue (§2.4) will surface this row.
+  // §2.3 — AI pipeline runs inline via ctx.waitUntil. Failures are caught
+  // inside runAiPipeline and persisted to ai_verdict_json.errors[]; the
+  // status will flip to 'ai_review' once steps complete.
+  c.executionCtx.waitUntil(
+    runAiPipeline(c.env, id).catch((err) => {
+      console.error('[ai-pipeline] uncaught error', id, err);
+    }),
+  );
 
   return c.json({
     flyer_id: id,
