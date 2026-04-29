@@ -24,7 +24,7 @@ export type Bindings = {
   A11Y_PASS_THRESHOLD: string;
   // Secrets
   ANTHROPIC_API_KEY?: string;
-  POSTMARK_API_KEY?: string;
+  RESEND_API_KEY?: string;
   AWS_SES_KEY?: string;
   AWS_SES_SECRET?: string;
   STRIPE_SECRET_KEY?: string;

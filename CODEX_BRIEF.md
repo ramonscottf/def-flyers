@@ -61,7 +61,7 @@ submitter logs in via magic link
   → AI pipeline runs (extract structured data if PDF, alt-text, EN→ES translate, moderation, a11y check)
   → flyer lands in admin reviewer queue with verdict
   → reviewer approves / rejects / requests changes
-  → on approve: schedule send, render to R2 as accessible HTML, fan out to subscribers via Postmark/SES
+  → on approve: schedule send, render to R2 as accessible HTML, fan out to subscribers via Resend (Phase 1) / SES (Phase 3+)
   → public flyer board shows it; subscribers receive digest
 ```
 
@@ -74,7 +74,7 @@ submitter logs in via magic link
   - Validate email format
   - Rate limit: 3 requests / hour / email via KV (`ratelimit:magic:{email}`)
   - Generate 32-byte token, hash with SHA-256, store hash in `magic_links` table (token plaintext is what goes in the email)
-  - Email magic link via Postmark — link format: `https://flyers.daviskids.org/submit/verify?token=<plaintext>`
+  - Email magic link via Resend — link format: `https://flyers.daviskids.org/submit/verify?token=<plaintext>`
   - TTL 15 minutes (env var `MAGIC_LINK_TTL_MINUTES`)
   - Return `{ok: true}` regardless of whether the email is in the user table (no enumeration leak)
 
@@ -87,15 +87,15 @@ submitter logs in via magic link
 
 - Add a `requireSession` Hono middleware to gate everything below.
 
-**Email skeleton — use Postmark to start, abstract via interface:**
+**Email skeleton — Resend for Phase 1, abstract via interface:**
 ```ts
 // src/lib/email.ts
 export interface EmailSender {
   send(opts: { to: string; subject: string; html: string; text?: string; tag?: string }): Promise<{id: string}>;
 }
-// implement PostmarkSender first; SES later for bulk
+// implement ResendSender first; swap in SES for bulk parent digests in Phase 3+
 ```
-Postmark "From": `flyers@daviskids.org`. Reply-To: `info@daviskids.org`.
+Resend "From": `flyers@daviskids.org`. Reply-To: `info@daviskids.org`. Use the REST API at `https://api.resend.com/emails` (no SDK needed in a Worker).
 
 #### 2.2 — Submission flow
 - `POST /api/submitter/submit` (auth required) — create `flyers` row with `status='draft'`
@@ -153,7 +153,7 @@ After pipeline completes, set `status='ai_review'` (this status doesn't exist in
 - `GET /api/admin/queue` — flyers where status in `('submitted','ai_review','reviewer')`, ordered by `submitted_at ASC`. Include AI verdict + a11y score.
 - `GET /api/admin/flyer/:id` — full record including renders, audits, revisions.
 - `POST /api/admin/flyer/:id/approve` body `{scheduled_send_at?}` — set status to `approved`, write `approved_by`, `approved_at`. If `scheduled_send_at` provided, status becomes `scheduled`. Insert into `admin_audit_log`.
-- `POST /api/admin/flyer/:id/reject` body `{reason}` — set status to `rejected`, write `rejected_reason`. Email submitter via Postmark with reason.
+- `POST /api/admin/flyer/:id/reject` body `{reason}` — set status to `rejected`, write `rejected_reason`. Email submitter via Resend with reason.
 - `POST /api/admin/flyer/:id/request` body `{notes}` — set status to `draft`, email submitter with change requests, log to `flyer_revisions`.
 
 **Build a simple HTML admin UI at `/admin`** (server-rendered, HTMX-powered for the action buttons). Don't build a React SPA. Patterns from the landing page apply: same color tokens, no JS unless needed.
@@ -164,7 +164,7 @@ After pipeline completes, set `status='ai_review'` (this status doesn't exist in
   2. Set `status='published'`, write `published_at`.
   3. Find matching subscribers (`subscriptions.audience` matches flyer's audience, `school_ids` JSON column overlaps flyer's schools, `verified=1`, `active=1`, not in `suppressions`).
   4. Build a digest email (or single-flyer if urgent) using a React-Email-style template — for Phase 1, use raw HTML in a template literal in `src/email/templates/flyer-single.ts`. Inline-style everything.
-  5. For each subscriber, insert a `deliveries` row, send via Postmark for now (SES once volume demands).
+  5. For each subscriber, insert a `deliveries` row, send via Resend for now (swap to SES once parent-digest volume demands it).
 
 - Public route `GET /flyer/:slug` serves the published HTML from R2. Honor `?lang=es` toggle.
 
@@ -190,7 +190,7 @@ These are not negotiable. They come from Scott's standing rules.
 4. **DO NOT switch the embedder** from `bge-base-en-v1.5` (768-dim) — it must match `skippy-memory`.
 5. **DO NOT add entrance animations** to any hero or landing surface. Heroes stay still. No "Squarespace energy" — Scott will reject the PR.
 6. **DO NOT use Bearer auth** when scripting against the Cloudflare API. Always `X-Auth-Email` + `X-Auth-Key`. (Wrangler handles this for you when env vars are set; only matters if you're hitting the REST API directly.)
-7. **DO NOT use MailChannels** — discontinued. **DO NOT use Resend for bulk** — Postmark transactional + AWS SES bulk only.
+7. **DO NOT use MailChannels** — discontinued. **DO NOT use Resend for bulk parent digests** (Phase 3+ goes to AWS SES). Phase 1 transactional volume on Resend is fine and is what we're shipping.
 8. **DO NOT auto-publish flyers.** Phase 1 = 100% human review, even when AI verdict is green. The "green-lane auto-publish" feature is Phase 3 at earliest, and only after enough local data shows AI is right.
 9. **DO NOT collect or store phone numbers / send SMS.** Phase 2. Twilio 10DLC isn't even submitted yet.
 10. **DO NOT mix donation Stripe with flyer-revenue Stripe.** Don't add Stripe at all in Phase 1 — payments are end of Phase 1 / start of Phase 3.
@@ -204,19 +204,19 @@ These are not negotiable. They come from Scott's standing rules.
 # Anthropic Claude API (you'll need this for the AI pipeline)
 wrangler secret put ANTHROPIC_API_KEY
 
-# Postmark (transactional email)
-wrangler secret put POSTMARK_API_KEY
-# server token from a "def-flyers-transactional" server in the DEF Postmark account
+# Resend (transactional email, Phase 1)
+wrangler secret put RESEND_API_KEY
+# API key from the DEF Resend account, scoped to flyers.daviskids.org
 
-# Once SES production access is granted (24h after request):
+# Once SES production access is granted (Phase 3, ~24h after request):
 wrangler secret put AWS_SES_KEY
 wrangler secret put AWS_SES_SECRET
 wrangler secret put AWS_SES_REGION  # e.g., us-west-2
 ```
 
-DNS for email auth on `flyers.daviskids.org` (Postmark + SES):
-- SPF record: `v=spf1 include:spf.mtasv.net include:amazonses.com ~all`
-- DKIM keys: provided by each vendor — add as TXT records when issued
+DNS for email auth on `daviskids.org`:
+- Phase 1 (Resend): SPF `v=spf1 include:_spf.resend.com ~all`, plus the DKIM TXT record Resend issues per domain
+- Phase 3 (add SES): expand SPF to `v=spf1 include:_spf.resend.com include:amazonses.com ~all`, add the SES DKIM TXT records
 - DMARC: `v=DMARC1; p=quarantine; rua=mailto:postmaster@daviskids.org`
 
 Scott handles vendor account creation if not yet done. Ask before creating accounts in his name.
@@ -254,8 +254,8 @@ Expected: 200s, schools=69, departments=10, feed=`{flyers:[],count:0}` until you
 
 These are gating Phase 1 *finishing*, not starting. Build through them.
 
-1. **Postmark account + DKIM** — Scott needs to create the Postmark server and add DKIM records to the daviskids.org zone.
-2. **AWS SES production access** — Scott files the request; takes ~24h.
+1. **Resend domain + DKIM** — Scott verifies `daviskids.org` in the existing Resend account and adds the DKIM/SPF records to the zone.
+2. **AWS SES production access** — Phase 3 only; Scott files the request when bulk parent-digest volume justifies the swap (~24h to provision).
 3. **Microsoft Entra app registration** — Scott has emailed Bateman; until ready, admin auth uses the `is_district_admin` flag on `users`.
 4. **Twilio 10DLC** — Phase 2 only. Don't worry about it.
 5. **Sherry/Kara sign-off on rate card** — Phase 3 only. Don't hardcode prices.
