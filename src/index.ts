@@ -5,6 +5,7 @@ import { logger } from 'hono/logger';
 import { renderLanding } from './routes/landing';
 import publicApi from './routes/public';
 import submitterApi from './routes/submitter';
+import submitterFlyersApi from './routes/submitterFlyers';
 import submitterPages from './routes/submitterPages';
 import adminApi from './routes/admin';
 
@@ -88,6 +89,7 @@ app.route('/', submitterPages);
 // ─── API routes ──────────────────────────────────────────────────────────
 app.route('/api/public', publicApi);
 app.route('/api/submitter', submitterApi);
+app.route('/api/submitter', submitterFlyersApi);
 app.route('/api/admin', adminApi);
 
 // ─── 404 ─────────────────────────────────────────────────────────────────

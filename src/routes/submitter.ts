@@ -117,21 +117,8 @@ api.post('/logout', async (c) => {
   return c.json({ ok: true });
 });
 
-// ─── Phase 1 stubs (filled by section 2.2) ─────────────────────────────────
-api.post('/submit', requireSession(), (c) =>
-  c.json({ error: 'not_implemented_yet', phase: 1, section: '2.2' }, 501),
-);
-api.post('/submit/upload-url', requireSession(), (c) =>
-  c.json({ error: 'not_implemented_yet', phase: 1, section: '2.2' }, 501),
-);
-api.get('/flyer/:id', requireSession(), (c) =>
-  c.json({ error: 'not_implemented_yet', phase: 1, section: '2.2' }, 501),
-);
-api.patch('/flyer/:id', requireSession(), (c) =>
-  c.json({ error: 'not_implemented_yet', phase: 1, section: '2.2' }, 501),
-);
-api.post('/flyer/:id/finalize', requireSession(), (c) =>
-  c.json({ error: 'not_implemented_yet', phase: 1, section: '2.2' }, 501),
-);
+// Submission flow endpoints (POST /submit, /flyer/:id/upload, finalize, etc.)
+// live in src/routes/submitterFlyers.ts and mount on the same /api/submitter
+// path in src/index.ts.
 
 export default api;
