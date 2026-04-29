@@ -10,6 +10,7 @@ import submitterFlyersApi from './routes/submitterFlyers';
 import submitterPages from './routes/submitterPages';
 import adminApi from './routes/admin';
 import adminPages from './routes/adminPages';
+import { parentApi, parentPages } from './routes/parent';
 import { runScheduledPublishes } from './publish';
 
 export type Bindings = {
@@ -89,8 +90,11 @@ app.get('/', async (c) => {
 // ─── Submitter pages (magic-link form, verify) ───────────────────────────
 app.route('/', submitterPages);
 
-// ─── Public pages (flyer detail, board, asset proxy, unsubscribe) ────────
+// ─── Public pages (flyer detail, board, asset proxy) ─────────────────────
 app.route('/', publicPages);
+
+// ─── Parent opt-in pages (signup, verify, preferences, unsubscribe) ──────
+app.route('/', parentPages);
 
 // ─── Admin reviewer pages (gated by is_district_admin) ───────────────────
 app.route('/admin', adminPages);
@@ -99,6 +103,7 @@ app.route('/admin', adminPages);
 app.route('/api/public', publicApi);
 app.route('/api/submitter', submitterApi);
 app.route('/api/submitter', submitterFlyersApi);
+app.route('/api/parent', parentApi);
 app.route('/api/admin', adminApi);
 
 // ─── 404 ─────────────────────────────────────────────────────────────────
