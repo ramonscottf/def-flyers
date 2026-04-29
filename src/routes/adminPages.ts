@@ -26,6 +26,7 @@ import {
   renderRejectEmail,
   renderRequestChangesEmail,
 } from '../email/templates/reviewerNotice';
+import { publishFlyer } from '../publish';
 
 const pages = new Hono<{ Bindings: Bindings; Variables: AppVariables }>();
 
@@ -601,10 +602,11 @@ pages.post('/flyer/:id/approve', async (c) => {
 
   await c.env.DB.prepare(
     `UPDATE flyers
-     SET status = ?, approved_by = ?, approved_at = ?, updated_at = ?, version = version + 1
+     SET status = ?, approved_by = ?, approved_at = ?, scheduled_send_at = ?,
+         updated_at = ?, version = version + 1
      WHERE id = ?`,
   )
-    .bind(newStatus, reviewer.id, now, now, id)
+    .bind(newStatus, reviewer.id, now, scheduledSendAt, now, id)
     .run();
 
   await logAudit(
@@ -633,6 +635,17 @@ pages.post('/flyer/:id/approve', async (c) => {
     } catch (err) {
       console.error('[admin/approve] email setup failed', err);
     }
+  }
+
+  if (!scheduledSendAt) {
+    c.executionCtx.waitUntil(
+      publishFlyer(c.env, id, c.executionCtx).then(
+        (r) => {
+          if (!r.ok) console.error('[admin/approve] publish failed', id, r.reason);
+        },
+        (err) => console.error('[admin/approve] publish error', id, err),
+      ),
+    );
   }
 
   setFlash(c, 'success', scheduledSendAt

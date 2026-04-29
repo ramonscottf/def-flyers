@@ -4,11 +4,13 @@ import { secureHeaders } from 'hono/secure-headers';
 import { logger } from 'hono/logger';
 import { renderLanding } from './routes/landing';
 import publicApi from './routes/public';
+import publicPages from './routes/publicPages';
 import submitterApi from './routes/submitter';
 import submitterFlyersApi from './routes/submitterFlyers';
 import submitterPages from './routes/submitterPages';
 import adminApi from './routes/admin';
 import adminPages from './routes/adminPages';
+import { runScheduledPublishes } from './publish';
 
 export type Bindings = {
   DB: D1Database;
@@ -87,6 +89,9 @@ app.get('/', async (c) => {
 // ─── Submitter pages (magic-link form, verify) ───────────────────────────
 app.route('/', submitterPages);
 
+// ─── Public pages (flyer detail, board, asset proxy, unsubscribe) ────────
+app.route('/', publicPages);
+
 // ─── Admin reviewer pages (gated by is_district_admin) ───────────────────
 app.route('/admin', adminPages);
 
@@ -104,4 +109,17 @@ app.onError((err, c) => {
   return c.json({ error: 'internal_error', message: err.message }, 500);
 });
 
-export default app;
+// Cloudflare Workers entry — fetch + scheduled handlers.
+// The cron tick (configured in wrangler.toml [triggers]) sweeps any
+// scheduled flyers whose scheduled_send_at has passed and publishes them.
+export default {
+  fetch: app.fetch,
+  async scheduled(_controller: ScheduledController, env: Bindings, ctx: ExecutionContext) {
+    ctx.waitUntil(
+      runScheduledPublishes(env).then(
+        (r) => console.log('[cron] scheduled-publish', r),
+        (err) => console.error('[cron] scheduled-publish failed', err),
+      ),
+    );
+  },
+};
