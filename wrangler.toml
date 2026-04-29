@@ -1,0 +1,80 @@
+name = "def-flyers"
+main = "src/index.ts"
+compatibility_date = "2026-04-29"
+compatibility_flags = ["nodejs_compat"]
+
+# ─── Custom domain ────────────────────────────────────────────────────────
+# flyers.daviskids.org bound below. Zone: e9aac6e9fab72eae9eda35335bc47f40
+[[routes]]
+pattern = "flyers.daviskids.org"
+custom_domain = true
+
+[[routes]]
+pattern = "flyers.daviskids.org/*"
+zone_id = "e9aac6e9fab72eae9eda35335bc47f40"
+
+# ─── D1 (existing dsd-flyers DB, 69 schools + 10 depts seeded) ────────────
+[[d1_databases]]
+binding = "DB"
+database_name = "dsd-flyers"
+database_id = "5b5de1d1-ca4a-4e27-bad5-f0a071a75b58"
+
+# ─── R2 (existing dsd-flyers-assets bucket) ───────────────────────────────
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "dsd-flyers-assets"
+
+# ─── KV (existing dsd-flyers-kv namespace) ────────────────────────────────
+[[kv_namespaces]]
+binding = "KV"
+id = "72249a65614a42f987b766e8ee616f68"
+
+# ─── Workers AI (for embeddings + cheap classification) ───────────────────
+[ai]
+binding = "AI"
+
+# ─── Browser Rendering (a11y audits) ──────────────────────────────────────
+[browser]
+binding = "BROWSER"
+
+# ─── Vectorize (will be created Day 2; commented for now) ─────────────────
+# [[vectorize]]
+# binding = "VECTORIZE"
+# index_name = "def-flyers-search"
+
+# ─── Vars ─────────────────────────────────────────────────────────────────
+[vars]
+ENVIRONMENT = "production"
+PUBLIC_BASE_URL = "https://flyers.daviskids.org"
+ALLOWED_EMAIL_DOMAINS = "daviskids.org,dsdmail.net"
+EMPLOYEE_EMAIL_DOMAIN = "dsdmail.net"
+SESSION_TTL_DAYS = "30"
+MAGIC_LINK_TTL_MINUTES = "15"
+TARGET_READING_GRADE = "7"
+A11Y_PASS_THRESHOLD = "85"
+
+# ─── Secrets (set via `wrangler secret put`) ──────────────────────────────
+# ANTHROPIC_API_KEY    — Claude API for AI pipeline
+# POSTMARK_API_KEY     — transactional email
+# AWS_SES_KEY          — bulk email
+# AWS_SES_SECRET
+# STRIPE_SECRET_KEY    — separate flyer-revenue account
+# STRIPE_WEBHOOK_SECRET
+# TWILIO_ACCOUNT_SID   — Phase 2
+# TWILIO_AUTH_TOKEN    — Phase 2
+
+# ─── Observability ────────────────────────────────────────────────────────
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+
+# ─── Cron triggers (commented until Phase 1 ships) ────────────────────────
+# [triggers]
+# crons = [
+#   "0 13 * * *",  # 06:00 MT — daily-distribute
+#   "0 9 * * *",   # 02:00 MT — nightly-ada-rescan
+# ]

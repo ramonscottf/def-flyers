@@ -1,0 +1,24 @@
+{
+  "name": "def-flyers",
+  "version": "0.1.0",
+  "description": "DEF Flyers — community flyer + DSD Ads platform for Davis Education Foundation",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "db:migrate": "wrangler d1 migrations apply dsd-flyers --remote",
+    "db:migrate:local": "wrangler d1 migrations apply dsd-flyers --local",
+    "db:seed": "wrangler d1 execute dsd-flyers --remote --file=migrations/0002_seed.sql",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251101.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.95.0"
+  }
+}
