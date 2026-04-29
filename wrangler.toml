@@ -72,9 +72,8 @@ enabled = true
 head_sampling_rate = 1
 invocation_logs = true
 
-# ─── Cron triggers (commented until Phase 1 ships) ────────────────────────
-# [triggers]
-# crons = [
-#   "0 13 * * *",  # 06:00 MT — daily-distribute
-#   "0 9 * * *",   # 02:00 MT — nightly-ada-rescan
-# ]
+# ─── Cron triggers ────────────────────────────────────────────────────────
+# Phase 1: every 5 minutes, sweep flyers with status='scheduled' whose
+# scheduled_send_at <= now() and publish them.
+[triggers]
+crons = ["*/5 * * * *"]
