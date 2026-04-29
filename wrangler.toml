@@ -55,8 +55,8 @@ A11Y_PASS_THRESHOLD = "85"
 
 # ─── Secrets (set via `wrangler secret put`) ──────────────────────────────
 # ANTHROPIC_API_KEY    — Claude API for AI pipeline
-# POSTMARK_API_KEY     — transactional email
-# AWS_SES_KEY          — bulk email
+# RESEND_API_KEY       — transactional email (Phase 1)
+# AWS_SES_KEY          — bulk parent digests (Phase 3+)
 # AWS_SES_SECRET
 # STRIPE_SECRET_KEY    — separate flyer-revenue account
 # STRIPE_WEBHOOK_SECRET
