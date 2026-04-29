@@ -8,6 +8,7 @@ import submitterApi from './routes/submitter';
 import submitterFlyersApi from './routes/submitterFlyers';
 import submitterPages from './routes/submitterPages';
 import adminApi from './routes/admin';
+import adminPages from './routes/adminPages';
 
 export type Bindings = {
   DB: D1Database;
@@ -85,6 +86,9 @@ app.get('/', async (c) => {
 
 // ─── Submitter pages (magic-link form, verify) ───────────────────────────
 app.route('/', submitterPages);
+
+// ─── Admin reviewer pages (gated by is_district_admin) ───────────────────
+app.route('/admin', adminPages);
 
 // ─── API routes ──────────────────────────────────────────────────────────
 app.route('/api/public', publicApi);
