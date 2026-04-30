@@ -54,14 +54,15 @@ TARGET_READING_GRADE = "7"
 A11Y_PASS_THRESHOLD = "85"
 
 # ─── Secrets (set via `wrangler secret put`) ──────────────────────────────
-# ANTHROPIC_API_KEY    — Claude API for AI pipeline
-# RESEND_API_KEY       — transactional email (Phase 1)
-# AWS_SES_KEY          — bulk parent digests (Phase 3+)
+# ANTHROPIC_API_KEY      — Claude API for AI pipeline
+# RESEND_API_KEY         — transactional email (Phase 1)
+# RESEND_WEBHOOK_SECRET  — Svix signing key for /webhooks/resend (whsec_...)
+# AWS_SES_KEY            — bulk parent digests (Phase 3+)
 # AWS_SES_SECRET
-# STRIPE_SECRET_KEY    — separate flyer-revenue account
+# STRIPE_SECRET_KEY      — separate flyer-revenue account
 # STRIPE_WEBHOOK_SECRET
-# TWILIO_ACCOUNT_SID   — Phase 2
-# TWILIO_AUTH_TOKEN    — Phase 2
+# TWILIO_ACCOUNT_SID     — Phase 2
+# TWILIO_AUTH_TOKEN      — Phase 2
 
 # ─── Observability ────────────────────────────────────────────────────────
 [observability]
