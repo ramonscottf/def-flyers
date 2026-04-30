@@ -7,6 +7,7 @@ import publicApi from './routes/public';
 import publicPages from './routes/publicPages';
 import submitterApi from './routes/submitter';
 import submitterFlyersApi from './routes/submitterFlyers';
+import submitterFlyersPages from './routes/submitterFlyersPages';
 import submitterPages from './routes/submitterPages';
 import adminApi from './routes/admin';
 import adminPages from './routes/adminPages';
@@ -89,6 +90,9 @@ app.get('/', async (c) => {
 
 // ─── Submitter pages (magic-link form, verify) ───────────────────────────
 app.route('/', submitterPages);
+
+// ─── Submitter flyer wizard (/submit/flyers, /submit/new, /submit/flyer/:id) ──
+app.route('/', submitterFlyersPages);
 
 // ─── Public pages (flyer detail, board, asset proxy) ─────────────────────
 app.route('/', publicPages);

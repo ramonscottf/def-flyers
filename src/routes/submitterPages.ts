@@ -138,28 +138,16 @@ function magicLinkForm(opts: { prefillEmail?: string; status?: 'success' | 'erro
   });
 }
 
-function signedInPage(opts: { email: string }) {
-  return pageShell({
-    title: 'Submit a flyer',
-    body: `
-      <h2>You're signed in</h2>
-      <p>Signed in as <strong>${escapeHtml(opts.email)}</strong>.</p>
-      <div class="card">
-        <p>The submission form will be available soon. Thank you for your patience while we finish wiring it up.</p>
-        <form method="POST" action="/api/submitter/logout" style="margin-top: 8px;">
-          <button type="submit" class="btn">Sign out</button>
-        </form>
-      </div>
-    `,
-  });
-}
+// signedInPage was previously rendered after magic-link verify. The wizard
+// at /submit/flyers now takes over — left as a no-op for any future fallback
+// case but unused on the live path.
 
 // ─── GET /submit ───────────────────────────────────────────────────────────
 pages.get('/submit', async (c) => {
   const sid = getCookie(c, SESSION_COOKIE);
   if (sid) {
     const user = await loadSession(c.env, sid);
-    if (user) return c.html(signedInPage({ email: user.email }));
+    if (user) return c.redirect('/submit/flyers', 303);
   }
   return c.html(magicLinkForm({}));
 });
