@@ -45,7 +45,10 @@ import {
 const pages = new Hono<{ Bindings: Bindings; Variables: AppVariables }>();
 
 // ─── Auth gate (HTML responses, not JSON) ──────────────────────────────────
-pages.use('*', async (c, next) => {
+// Scoped to /submit/* — this module is mounted at / so a bare `*` wildcard
+// would match every request on the worker, including webhooks and the
+// public flyer pages.
+pages.use('/submit/*', async (c, next) => {
   const sid = getCookie(c, SESSION_COOKIE);
   if (!sid) return c.redirect('/submit', 303);
   const user = await loadSession(c.env, sid);
