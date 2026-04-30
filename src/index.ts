@@ -12,6 +12,7 @@ import submitterPages from './routes/submitterPages';
 import adminApi from './routes/admin';
 import adminPages from './routes/adminPages';
 import { parentApi, parentPages } from './routes/parent';
+import webhooks from './routes/webhooks';
 import { runScheduledPublishes } from './publish';
 
 export type Bindings = {
@@ -31,6 +32,7 @@ export type Bindings = {
   // Secrets
   ANTHROPIC_API_KEY?: string;
   RESEND_API_KEY?: string;
+  RESEND_WEBHOOK_SECRET?: string;
   AWS_SES_KEY?: string;
   AWS_SES_SECRET?: string;
   STRIPE_SECRET_KEY?: string;
@@ -109,6 +111,7 @@ app.route('/api/submitter', submitterApi);
 app.route('/api/submitter', submitterFlyersApi);
 app.route('/api/parent', parentApi);
 app.route('/api/admin', adminApi);
+app.route('/webhooks', webhooks);
 
 // ─── 404 ─────────────────────────────────────────────────────────────────
 app.notFound((c) => c.json({ error: 'not_found', path: c.req.path }, 404));
