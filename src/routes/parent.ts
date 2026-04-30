@@ -288,6 +288,7 @@ async function handleOptin(
       `UPDATE subscriptions
        SET audience = 'parents',
            school_ids = ?,
+           language = ?,
            ${existing.verified === 1 ? '' : 'verification_token = ?,'}
            active = 1,
            ${existing.verified === 1 ? '' : 'verified = 0,'}
@@ -299,21 +300,22 @@ async function handleOptin(
     )
       .bind(
         ...(existing.verified === 1
-          ? [JSON.stringify(payload.schoolIds), subscriptionId]
-          : [JSON.stringify(payload.schoolIds), verifyToken, unsubscribeToken, subscriptionId]),
+          ? [JSON.stringify(payload.schoolIds), payload.language, subscriptionId]
+          : [JSON.stringify(payload.schoolIds), payload.language, verifyToken, unsubscribeToken, subscriptionId]),
       )
       .run();
   } else {
     const ins = await c.env.DB.prepare(
       `INSERT INTO subscriptions
-         (email, audience, school_ids, digest_frequency, delivery,
+         (email, audience, school_ids, language, digest_frequency, delivery,
           active, verified, verification_token, unsubscribe_token,
           created_at, source)
-       VALUES (?, 'parents', ?, 'weekly', 'email', 1, 0, ?, ?, ?, 'self_signup')`,
+       VALUES (?, 'parents', ?, ?, 'weekly', 'email', 1, 0, ?, ?, ?, 'self_signup')`,
     )
       .bind(
         payload.email,
         JSON.stringify(payload.schoolIds),
+        payload.language,
         verifyToken,
         unsubscribeToken,
         now,
