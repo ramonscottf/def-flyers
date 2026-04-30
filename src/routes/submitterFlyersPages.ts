@@ -386,6 +386,49 @@ function formStateFromFlyer(flyer: FlyerRow, schools: string[], departments: str
   };
 }
 
+// AI gives us ISO 8601 strings (it picks a sensible offset based on the
+// flyer's apparent location). Best-effort parse; if invalid, return ''.
+function isoToLocalInput(iso: string | null | undefined): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return unixToLocalInput(Math.floor(d.getTime() / 1000));
+}
+
+function fileToBase64(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    bin += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
+  }
+  return btoa(bin);
+}
+
+function formStateFromExtraction(
+  extracted: import('../ai/extract').ExtractedFlyer,
+): FormState {
+  // Fall back to 30-days-from-now when the AI doesn't supply expires_at.
+  const fallbackExpires = unixToLocalInput(
+    Math.floor(Date.now() / 1000) + 30 * 86400,
+  );
+  return {
+    title: extracted.title,
+    summary: extracted.summary,
+    audience: extracted.audience,
+    scope: extracted.scope,
+    category: extracted.category,
+    expires_at: isoToLocalInput(extracted.expires_at_iso) || fallbackExpires,
+    body: extracted.body_plain,
+    event_start_at: isoToLocalInput(extracted.event_start_iso),
+    event_end_at: isoToLocalInput(extracted.event_end_iso),
+    event_location: extracted.event_location ?? '',
+    image_alt_text: extracted.image_alt_text ?? '',
+    schools: extracted.school_ids,
+    departments: extracted.department_ids,
+  };
+}
+
 // Plain-text body → segmented HTML on save.
 function bodyToHtml(plain: string): string {
   if (!plain.trim()) return '';
@@ -403,6 +446,7 @@ function flyerForm(opts: {
   schools: SchoolPick[];
   departments: DeptPick[];
   submitLabel: string;
+  hiddenFields?: Record<string, string>;
 }): string {
   const audienceRadios = ['parents', 'employees', 'both']
     .map(
@@ -437,7 +481,14 @@ function flyerForm(opts: {
     )
     .join('');
 
+  const hidden = opts.hiddenFields
+    ? Object.entries(opts.hiddenFields)
+        .map(([k, v]) => `<input type="hidden" name="${escapeHtml(k)}" value="${escapeHtml(v)}">`)
+        .join('')
+    : '';
+
   return `<form method="POST" action="${escapeHtml(opts.formAction)}" novalidate>
+  ${hidden}
   <fieldset>
     <legend>Basics</legend>
     <label for="title">Title <span style="color:var(--red);">*</span></label>
@@ -672,12 +723,24 @@ pages.get('/submit/flyers', async (c) => {
 
 // ─── Create form ───────────────────────────────────────────────────────────
 
+function quickStartCard(): string {
+  return `<form method="POST" action="/submit/new/extract" enctype="multipart/form-data" class="card" style="margin:0 0 24px;">
+    <h3 style="margin:0 0 6px;">Quick start: upload a PDF or image</h3>
+    <p class="help" style="margin:0 0 12px;">We'll read the flyer with AI and pre-fill the form below for you to review. PDF or JPEG/PNG/WebP, up to 10 MB. Takes 10–30 seconds.</p>
+    <input id="quick-file" name="file" type="file" required accept="application/pdf,image/jpeg,image/png,image/webp">
+    <div class="actions" style="margin-top:12px;"><button type="submit" class="btn">Extract from upload</button></div>
+    <p class="help" style="margin:8px 0 0;font-size:12px;">You'll still review every field before submitting. The AI is a head start, not a decision.</p>
+  </form>`;
+}
+
 pages.get('/submit/new', async (c) => {
   const user = c.get('user');
   const [schools, departments] = await Promise.all([listSchools(c.env), listDepartments(c.env)]);
   const body = `<p class="subnav"><a href="/submit/flyers">← My flyers</a></p>
     <h2>New flyer</h2>
-    <p>Fill out the structured fields below. You can attach a PDF or image after the draft is created.</p>
+    <p>Fill out the structured fields below — or upload a flyer to have the AI pre-fill them for you.</p>
+    ${quickStartCard()}
+    <h3 style="margin-top:24px;">Or fill out manually</h3>
     ${flyerForm({
       formAction: '/submit/new',
       state: emptyFormState(),
@@ -688,11 +751,129 @@ pages.get('/submit/new', async (c) => {
   return c.html(shell({ title: 'New flyer', user, body }));
 });
 
+// ─── POST /submit/new/extract — AI autofill from an uploaded file ─────────
+pages.post('/submit/new/extract', async (c) => {
+  const user = c.get('user');
+  const form = await c.req.parseBody();
+  const file = form.file;
+
+  if (!(file instanceof File)) {
+    setFlash(c, 'error', 'Choose a file to extract from.');
+    return c.redirect('/submit/new', 303);
+  }
+  if (file.size === 0) {
+    setFlash(c, 'error', 'The chosen file is empty.');
+    return c.redirect('/submit/new', 303);
+  }
+  if (file.size > MAX_UPLOAD_BYTES) {
+    setFlash(c, 'error', 'File is over the 10 MB limit.');
+    return c.redirect('/submit/new', 303);
+  }
+  if (!ALLOWED_CONTENT_TYPES.has(file.type)) {
+    setFlash(c, 'error', 'File type must be PDF, JPEG, PNG, or WebP.');
+    return c.redirect('/submit/new', 303);
+  }
+
+  // Read the file body once: we need it for both the AI call (base64) and
+  // for the temp R2 write (carry-over to the draft on save).
+  const arrayBuffer = await file.arrayBuffer();
+  const base64 = fileToBase64(arrayBuffer);
+  const ext = EXT_BY_TYPE[file.type];
+  const tempKey = `extracts/${user.id}/${ulid()}.${ext}`;
+
+  await c.env.ASSETS.put(tempKey, arrayBuffer, {
+    httpMetadata: { contentType: file.type },
+    customMetadata: {
+      uploaded_by: user.id,
+      kind: 'extract',
+      purpose: 'flyer-extract',
+    },
+  });
+
+  const [schools, departments] = await Promise.all([listSchools(c.env), listDepartments(c.env)]);
+
+  // Lazy import to keep the AI module out of the cold-start path until
+  // someone actually uses Quick Start.
+  const { extractFlyerFromUpload } = await import('../ai/extract');
+  const extraction = await extractFlyerFromUpload(
+    c.env,
+    { base64, type: file.type },
+    schools,
+    departments,
+  );
+
+  if (!extraction.ok) {
+    // Clean up the temp object — the user will need to re-upload anyway.
+    await c.env.ASSETS.delete(tempKey).catch(() => {});
+    const messages: Record<string, string> = {
+      missing_anthropic_key:
+        'AI extraction is currently unavailable (the AI key isn’t configured). Please fill out the form manually.',
+      anthropic_quota:
+        'AI extraction hit its usage cap. Please try again later or fill out the form manually.',
+      anthropic_error:
+        'The AI couldn’t read this flyer. Please fill out the form manually.',
+      parse_failed:
+        'The AI returned an unexpected response. Please fill out the form manually.',
+      invalid_response_shape:
+        'The AI response was malformed. Please fill out the form manually.',
+    };
+    setFlash(c, 'error', messages[extraction.error] ?? 'AI extraction failed.');
+    return c.redirect('/submit/new', 303);
+  }
+
+  const state = formStateFromExtraction(extraction.result.data);
+  const kind = file.type === 'application/pdf' ? 'pdf' : 'image';
+
+  const body = `<p class="subnav"><a href="/submit/flyers">← My flyers</a></p>
+    <h2>Review the extracted flyer</h2>
+    <p>The AI's best read of your upload is below. <strong>Review every field</strong> before saving — especially title, audience, scope, schools, and dates. The original ${escapeHtml(kind === 'pdf' ? 'PDF' : 'image')} will be attached to the draft automatically when you save.</p>
+    ${flyerForm({
+      formAction: '/submit/new',
+      state,
+      schools,
+      departments,
+      submitLabel: 'Save draft',
+      hiddenFields: {
+        extract_pdf_r2_key: tempKey,
+        extract_kind: kind,
+      },
+    })}`;
+
+  c.executionCtx.waitUntil(
+    Promise.resolve().then(() =>
+      console.log(
+        `[extract] flyer extracted for ${user.email}: cost ~$${extraction.result.cost_usd.toFixed(3)}, confidence ${extraction.result.data.confidence}`,
+      ),
+    ),
+  );
+
+  return c.html(
+    shell({
+      title: 'Review extracted flyer',
+      user,
+      body,
+      flash: { kind: 'success', message: 'Extraction complete. Review and edit before saving.' },
+    }),
+  );
+});
+
 pages.post('/submit/new', async (c) => {
   const user = c.get('user');
   const form = await c.req.parseBody();
   const state = formStateFromBody(form);
   const parsed = await parseAndValidate(c.env, state);
+
+  // Carry-over from /submit/new/extract: if these are set and the temp
+  // object exists and belongs to this user, we'll attach it to the draft.
+  const extractKey = formFieldString(form, 'extract_pdf_r2_key');
+  const extractKindRaw = formFieldString(form, 'extract_kind');
+  const carryHidden: Record<string, string> = {};
+  if (extractKey && extractKey.startsWith(`extracts/${user.id}/`)) {
+    carryHidden.extract_pdf_r2_key = extractKey;
+  }
+  if (extractKindRaw === 'pdf' || extractKindRaw === 'image') {
+    carryHidden.extract_kind = extractKindRaw;
+  }
 
   if (!parsed.ok) {
     const [schools, departments] = await Promise.all([listSchools(c.env), listDepartments(c.env)]);
@@ -704,6 +885,7 @@ pages.post('/submit/new', async (c) => {
         schools,
         departments,
         submitLabel: 'Save draft',
+        hiddenFields: Object.keys(carryHidden).length > 0 ? carryHidden : undefined,
       })}`;
     return c.html(
       shell({ title: 'New flyer', user, body, flash: { kind: 'error', message: parsed.error.message } }),
@@ -741,7 +923,48 @@ pages.post('/submit/new', async (c) => {
 
   await writeFlyerTargets(c.env, id, f.schools, f.departments);
 
-  setFlash(c, 'success', `Draft saved: "${f.title}". Add a PDF/image and click Submit when ready.`);
+  // Promote the carry-over file from the extract bucket to the flyer's
+  // permanent location. Best-effort: a failure here doesn't unwind the
+  // draft create — submitter can re-upload from the detail page.
+  let attachmentNote = '';
+  if (carryHidden.extract_pdf_r2_key && carryHidden.extract_kind) {
+    const tempKey = carryHidden.extract_pdf_r2_key;
+    const kind = carryHidden.extract_kind as 'pdf' | 'image';
+    try {
+      const obj = await c.env.ASSETS.get(tempKey);
+      if (obj) {
+        const ct = obj.httpMetadata?.contentType ?? 'application/octet-stream';
+        const ext = EXT_BY_TYPE[ct] ?? (kind === 'pdf' ? 'pdf' : 'bin');
+        const newKey = `flyers/${id}/${kind}-${ulid()}.${ext}`;
+        await c.env.ASSETS.put(newKey, obj.body, {
+          httpMetadata: { contentType: ct },
+          customMetadata: {
+            flyer_id: id,
+            uploaded_by: user.id,
+            kind,
+            source: 'extract',
+          },
+        });
+        const col = kind === 'pdf' ? 'pdf_r2_key' : 'image_r2_key';
+        await c.env.DB.prepare(
+          `UPDATE flyers SET ${col} = ?, updated_at = ? WHERE id = ? AND submitted_by = ?`,
+        )
+          .bind(newKey, Math.floor(Date.now() / 1000), id, user.id)
+          .run();
+        await c.env.ASSETS.delete(tempKey).catch(() => {});
+        attachmentNote =
+          kind === 'pdf' ? ' Original PDF attached.' : ' Original image attached.';
+      }
+    } catch (err) {
+      console.error('[submit/new] extract carry-over failed', err);
+    }
+  }
+
+  setFlash(
+    c,
+    'success',
+    `Draft saved: "${f.title}".${attachmentNote} Click Submit when ready.`,
+  );
   return c.redirect(`/submit/flyer/${id}`, 303);
 });
 
