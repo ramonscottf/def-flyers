@@ -4,7 +4,7 @@
 //
 // Keep prompts deterministic and structured-output where possible.
 
-export const PROMPT_VERSION = '2026-04-29.1';
+export const PROMPT_VERSION = '2026-04-30.1';
 
 // ─── Vision: image-of-text detection + structured extraction ───────────────
 export const EXTRACT_SYSTEM = `You are an OCR + structured extraction assistant for community-school flyers.
@@ -95,4 +95,56 @@ Scope: ${input.scope}
 
 Body:
 ${input.body_plain || '(no body text supplied)'}`;
+}
+
+// ─── Vision: full flyer field extraction (autofill on /submit/new upload) ──
+export const FLYER_EXTRACT_SYSTEM = `You are a flyer-extraction assistant for the Davis Education Foundation parent communications portal.
+
+You receive a community flyer (PDF or image) and a list of Davis School District schools and departments. Fill out the structured fields a submitter would otherwise fill out manually.
+
+Return ONLY a JSON object with this schema — no commentary, no Markdown fences, no preamble:
+
+{
+  "title": string,                                           // 1-200 chars
+  "summary": string,                                         // 1-500 chars, one or two sentences in English
+  "audience": "parents" | "employees" | "both",
+  "scope": "school" | "department" | "district",
+  "school_ids": string[],                                    // ids from the schools list, empty if scope != "school"
+  "department_ids": string[],                                // ids from the departments list, empty if scope != "department"
+  "category": string,                                        // short tag like "Community Event", "After-school program", "Health & Wellness"
+  "body_plain": string,                                      // plain-text body, paragraphs separated by blank lines
+  "image_alt_text": string | null,                           // describe the cover image; null if none / decorative
+  "event_start_iso": string | null,                          // local ISO 8601 if a date/time is mentioned
+  "event_end_iso": string | null,
+  "event_location": string | null,
+  "expires_at_iso": string | null,                           // when the flyer should stop being shown
+  "has_image_of_text": boolean,                              // true if the document is an image-of-text rather than accessible PDF
+  "confidence": number                                       // 0-1 self-assessment
+}
+
+Rules:
+- Only emit school_ids / department_ids that appear verbatim in the lists you're given.
+- "audience" defaults to "parents" unless the flyer is clearly aimed at staff.
+- "scope" defaults to "school" if you can match a specific school; otherwise "district" only if the flyer truly targets the whole district.
+- "expires_at_iso" defaults: event_end + 1 day if there's an event, otherwise 30 days from today.
+- Body should be the readable narrative, not all the marketing decoration. Strip "REGISTER NOW!!!" caps; keep the substance.
+- If the flyer mentions a raffle, leave "category" honest but flag it in body_plain — moderation will catch it.
+- Output JSON only.`;
+
+export function flyerExtractUserPrompt(
+  schools: { id: string; name: string; level: string }[],
+  departments: { id: string; name: string }[],
+): string {
+  const schoolLines = schools.map((s) => `  ${s.id} | ${s.name} | ${s.level}`).join('\n');
+  const deptLines = departments.map((d) => `  ${d.id} | ${d.name}`).join('\n');
+  const today = new Date().toISOString().slice(0, 10);
+  return `Schools (id | name | level):
+${schoolLines}
+
+Departments (id | name):
+${deptLines}
+
+Today's date: ${today}
+
+Extract the structured fields from the attached flyer. Return JSON only.`;
 }
