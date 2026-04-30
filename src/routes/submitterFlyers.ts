@@ -20,22 +20,22 @@ const api = new Hono<{ Bindings: Bindings; Variables: AppVariables }>();
 
 api.use('*', requireSession());
 
-const AUDIENCES = new Set(['parents', 'employees', 'both']);
-const SCOPES = new Set(['school', 'department', 'district']);
-const ALLOWED_UPLOAD_KINDS = new Set(['pdf', 'image']);
-const ALLOWED_CONTENT_TYPES = new Set([
+export const AUDIENCES = new Set(['parents', 'employees', 'both']);
+export const SCOPES = new Set(['school', 'department', 'district']);
+export const ALLOWED_UPLOAD_KINDS = new Set(['pdf', 'image']);
+export const ALLOWED_CONTENT_TYPES = new Set([
   'application/pdf',
   'image/jpeg',
   'image/png',
   'image/webp',
 ]);
-const EXT_BY_TYPE: Record<string, string> = {
+export const EXT_BY_TYPE: Record<string, string> = {
   'application/pdf': 'pdf',
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
 };
-const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 interface SubmitBody {
   title?: unknown;
@@ -60,20 +60,20 @@ interface PatchBody extends SubmitBody {
   image_r2_key?: unknown;
 }
 
-function asTrimmedString(v: unknown, max: number): string | null {
+export function asTrimmedString(v: unknown, max: number): string | null {
   if (typeof v !== 'string') return null;
   const s = v.trim();
   if (!s || s.length > max) return null;
   return s;
 }
 
-function asUnixSeconds(v: unknown): number | null {
+export function asUnixSeconds(v: unknown): number | null {
   if (typeof v !== 'number' || !Number.isFinite(v)) return null;
   // Accept either seconds or ms; normalise to seconds.
   return v > 1e12 ? Math.floor(v / 1000) : Math.floor(v);
 }
 
-function asStringArray(v: unknown): string[] | null {
+export function asStringArray(v: unknown): string[] | null {
   if (!Array.isArray(v)) return null;
   const out: string[] = [];
   for (const item of v) {
@@ -85,7 +85,7 @@ function asStringArray(v: unknown): string[] | null {
   return out;
 }
 
-interface FlyerRow {
+export interface FlyerRow {
   id: string;
   slug: string;
   title: string;
@@ -118,7 +118,7 @@ interface FlyerRow {
   version: number;
 }
 
-async function loadFlyerForOwner(
+export async function loadFlyerForOwner(
   env: Bindings,
   flyerId: string,
   userId: string,
@@ -131,7 +131,7 @@ async function loadFlyerForOwner(
   return row ?? null;
 }
 
-async function loadFlyerTargets(
+export async function loadFlyerTargets(
   env: Bindings,
   flyerId: string,
 ): Promise<{ schools: string[]; departments: string[] }> {
@@ -193,7 +193,7 @@ function safeJsonArray(v: string): unknown[] {
   }
 }
 
-async function validateScopeTargets(
+export async function validateScopeTargets(
   env: Bindings,
   scope: string,
   schoolIds: string[],
@@ -230,7 +230,7 @@ async function validateScopeTargets(
   return { ok: true };
 }
 
-async function writeFlyerTargets(
+export async function writeFlyerTargets(
   env: Bindings,
   flyerId: string,
   schoolIds: string[],
@@ -715,7 +715,7 @@ api.post('/flyer/:id/finalize', async (c) => {
   });
 });
 
-function stripTags(html: string): string {
+export function stripTags(html: string): string {
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
