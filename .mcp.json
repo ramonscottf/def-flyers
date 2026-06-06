@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "skippy-context": {
+      "type": "http",
+      "url": "https://omi.fosterlabs.org/mcp",
+      "headers": {
+        "Authorization": "Bearer ${SKIPPY_CONTEXT_TOKEN}"
+      }
+    }
+  }
+}

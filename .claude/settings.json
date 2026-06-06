@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl * omi.fosterlabs.org*)",
+      "Bash(curl -s https://omi.fosterlabs.org*)",
+      "Bash(npm run *)",
+      "Bash(wrangler *)",
+      "Bash(git *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf 'Skippy context is OPT-IN — do not auto-fetch. Use /sync (or the skippy-context MCP) only when Scott says \"sync\", references a past conversation, or you need cross-project memory.\\n'; h=$(curl -s --max-time 4 https://omi.fosterlabs.org/health 2>/dev/null || true); if printf '%s' \"$h\" | grep -q 'phase3-restore+guard'; then printf 'Context Engine: healthy (%s).\\n' \"$(printf '%s' \"$h\" | tr -d '\\n' | head -c 200)\"; else printf 'Context Engine: health check did not return the expected guard string — retrieval may be down or the docs have drifted. Verify before relying on /sync.\\n'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
