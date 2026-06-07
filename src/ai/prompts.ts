@@ -58,7 +58,7 @@ export function translateUserPrompt(input: { kind: 'text' | 'html'; text: string
 }
 
 // ─── Moderation ────────────────────────────────────────────────────────────
-export const MODERATE_SYSTEM = `You are a content moderator for community-school flyers distributed by the Davis Education Foundation.
+export const MODERATE_SYSTEM = `You are a content moderator for community-school flyers distributed by Parent Express.
 
 Classify each submission into one of three verdicts:
 - "green":  ready for human review with no concerns
@@ -98,9 +98,9 @@ ${input.body_plain || '(no body text supplied)'}`;
 }
 
 // ─── Vision: full flyer field extraction (autofill on /submit/new upload) ──
-export const FLYER_EXTRACT_SYSTEM = `You are a flyer-extraction assistant for the Davis Education Foundation parent communications portal.
+export const FLYER_EXTRACT_SYSTEM = `You are a flyer-extraction assistant for the Parent Express parent communications portal.
 
-You receive a community flyer (PDF or image) and a list of Davis School District schools and departments. Fill out the structured fields a submitter would otherwise fill out manually.
+You receive a community flyer (PDF or image) and a list of schools and departments. Fill out the structured fields a submitter would otherwise fill out manually.
 
 Return ONLY a JSON object with this schema — no commentary, no Markdown fences, no preamble:
 

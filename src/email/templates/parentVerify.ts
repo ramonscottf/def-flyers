@@ -8,22 +8,22 @@ export interface ParentVerifyEmail {
 
 const T = {
   en: {
-    subject: 'Confirm your DEF Flyers subscription',
-    eyebrow: 'Davis Education Foundation',
+    subject: 'Confirm your Parent Express subscription',
+    eyebrow: 'Parent Express',
     title: 'Confirm your subscription',
-    intro: 'Click the button below to confirm you want to receive DEF Flyers email updates. This link expires in 24 hours.',
+    intro: 'Click the button below to confirm you want to receive Parent Express email updates. This link expires in 24 hours.',
     cta: 'Confirm subscription',
     fallback: 'Or paste this URL into your browser:',
-    foot: 'You received this because someone (probably you) signed up at flyers.daviskids.org. If that wasn\'t you, you can safely ignore this email.',
+    foot: 'You received this because someone (probably you) signed up at flyers.wickowaypoint.com. If that wasn\'t you, you can safely ignore this email.',
   },
   es: {
-    subject: 'Confirme su suscripción a DEF Flyers',
+    subject: 'Confirme su suscripción a Parent Express',
     eyebrow: 'Fundación Educativa de Davis',
     title: 'Confirme su suscripción',
-    intro: 'Haga clic en el botón a continuación para confirmar que desea recibir actualizaciones por correo electrónico de DEF Flyers. Este enlace expira en 24 horas.',
+    intro: 'Haga clic en el botón a continuación para confirmar que desea recibir actualizaciones por correo electrónico de Parent Express. Este enlace expira en 24 horas.',
     cta: 'Confirmar suscripción',
     fallback: 'O pegue esta URL en su navegador:',
-    foot: 'Recibió esto porque alguien (probablemente usted) se inscribió en flyers.daviskids.org. Si no fue usted, puede ignorar este correo electrónico.',
+    foot: 'Recibió esto porque alguien (probablemente usted) se inscribió en flyers.wickowaypoint.com. Si no fue usted, puede ignorar este correo electrónico.',
   },
 } as const;
 
@@ -44,7 +44,7 @@ export function renderParentVerifyEmail(opts: {
   <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;max-width:560px;width:100%;">
     <tr><td style="padding:32px 32px 16px;border-bottom:4px solid #0d1b3d;">
       <p style="margin:0;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#c9a13b;font-weight:600;">${escapeHtml(t.eyebrow)}</p>
-      <h1 style="margin:6px 0 0;font-size:24px;color:#0d1b3d;font-weight:800;">DEF Flyers</h1>
+      <h1 style="margin:6px 0 0;font-size:24px;color:#0d1b3d;font-weight:800;">Parent Express</h1>
     </td></tr>
     <tr><td style="padding:24px 32px;">
       <h2 style="margin:0 0 12px;font-size:20px;color:#0d1b3d;">${escapeHtml(t.title)}</h2>
@@ -57,7 +57,7 @@ export function renderParentVerifyEmail(opts: {
       <p style="margin:0;font-size:13px;color:#4a5876;">${escapeHtml(t.foot)}</p>
     </td></tr>
     <tr><td style="padding:18px 32px 28px;border-top:1px solid #d8dde7;font-size:12px;color:#4a5876;">
-      Davis Education Foundation · <a href="https://daviskids.org" style="color:#1a2a5e;">daviskids.org</a>
+      Parent Express · © Wicko Waypoint · <a href="https://wickowaypoint.com" style="color:#1a2a5e;">wickowaypoint.com</a>
     </td></tr>
   </table>
 </td></tr></table>

@@ -17,18 +17,18 @@ export interface FlyerSingleEmailInput {
 
 const T = {
   en: {
-    eyebrow: 'Davis Education Foundation',
+    eyebrow: 'Parent Express',
     viewOnline: 'View this flyer online',
     expiresLabel: 'Expires',
     unsubLabel: 'Manage email preferences or unsubscribe',
-    footer: 'You received this because you opted in to flyers from Davis Education Foundation in partnership with Davis School District.',
+    footer: 'You received this because you opted in to flyers from Parent Express.',
   },
   es: {
     eyebrow: 'Fundación Educativa de Davis',
     viewOnline: 'Ver este folleto en línea',
     expiresLabel: 'Vence',
     unsubLabel: 'Administrar preferencias o cancelar suscripción',
-    footer: 'Usted recibió esto porque se inscribió para recibir folletos de Davis Education Foundation en colaboración con Davis School District.',
+    footer: 'Usted recibió esto porque se inscribió para recibir folletos de Parent Express.',
   },
 } as const;
 

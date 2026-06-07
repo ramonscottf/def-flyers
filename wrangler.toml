@@ -4,14 +4,9 @@ compatibility_date = "2026-04-29"
 compatibility_flags = ["nodejs_compat"]
 
 # ─── Custom domain ────────────────────────────────────────────────────────
-# flyers.daviskids.org bound below. Zone: e9aac6e9fab72eae9eda35335bc47f40
-[[routes]]
-pattern = "flyers.daviskids.org"
-custom_domain = true
-
-[[routes]]
-pattern = "flyers.daviskids.org/*"
-zone_id = "e9aac6e9fab72eae9eda35335bc47f40"
+# flyers.wickowaypoint.com is attached to this Worker via the Cloudflare API
+# (zone wickowaypoint.com). Intentionally NOT declared here so `wrangler deploy`
+# only updates code and can never re-create the old daviskids.org domain.
 
 # ─── D1 (existing dsd-flyers DB, 69 schools + 10 depts seeded) ────────────
 [[d1_databases]]
@@ -45,7 +40,7 @@ binding = "BROWSER"
 # ─── Vars ─────────────────────────────────────────────────────────────────
 [vars]
 ENVIRONMENT = "production"
-PUBLIC_BASE_URL = "https://flyers.daviskids.org"
+PUBLIC_BASE_URL = "https://flyers.wickowaypoint.com"
 ALLOWED_EMAIL_DOMAINS = "daviskids.org,dsdmail.net"
 EMPLOYEE_EMAIL_DOMAIN = "dsdmail.net"
 SESSION_TTL_DAYS = "30"

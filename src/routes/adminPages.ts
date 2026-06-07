@@ -87,7 +87,7 @@ function shell(opts: {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${escapeHtml(opts.title)} · DEF Flyers admin</title>
+<title>${escapeHtml(opts.title)} · Parent Express admin</title>
 <meta name="robots" content="noindex">
 <style>
   :root {
@@ -152,7 +152,7 @@ function shell(opts: {
 <a class="skip-link" href="#main">Skip to main content</a>
 <header class="bar">
   <div class="inner">
-    <h1><a href="/admin" style="color:#fff;text-decoration:none;">DEF Flyers — admin</a></h1>
+    <h1><a href="/admin" style="color:#fff;text-decoration:none;">Parent Express — admin</a></h1>
     <nav>
       <a href="/admin">Queue</a>
       <span style="color:#a8b3cd;">${escapeHtml(opts.user.email)}</span>
@@ -163,7 +163,7 @@ function shell(opts: {
   ${flash}
   ${opts.body}
 </main>
-<footer>Davis Education Foundation · admin reviewer</footer>
+<footer>Parent Express · © Wicko Waypoint · admin reviewer</footer>
 </body>
 </html>`;
 }
@@ -174,7 +174,7 @@ function loginPrompt(): string {
 a{color:#1a2a5e}.btn{display:inline-block;background:#0d1b3d;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600}</style>
 </head><body>
 <h1>Sign in required</h1>
-<p>This area is for DEF reviewers. Please sign in via magic link.</p>
+<p>This area is for reviewers. Please sign in via magic link.</p>
 <p><a class="btn" href="/submit">Go to sign-in</a></p>
 </body></html>`;
 }

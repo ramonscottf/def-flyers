@@ -11,8 +11,8 @@ export function renderRejectEmail(opts: {
   reason: string;
   baseUrl: string;
 }): ReviewerNoticeEmail {
-  const subject = `Update on your DEF Flyers submission: "${opts.flyerTitle}"`;
-  const text = `Your flyer "${opts.flyerTitle}" was not approved for distribution.\n\nReason from the reviewer:\n${opts.reason}\n\nYou can submit a revised flyer at ${opts.baseUrl}/submit.\n\n— Davis Education Foundation`;
+  const subject = `Update on your Parent Express submission: "${opts.flyerTitle}"`;
+  const text = `Your flyer "${opts.flyerTitle}" was not approved for distribution.\n\nReason from the reviewer:\n${opts.reason}\n\nYou can submit a revised flyer at ${opts.baseUrl}/submit.\n\n— Parent Express`;
   const html = wrap({
     heading: 'Your flyer was not approved',
     body: `<p>Your flyer <strong>${escapeHtml(opts.flyerTitle)}</strong> was not approved for distribution at this time.</p>
@@ -30,8 +30,8 @@ export function renderRequestChangesEmail(opts: {
   baseUrl: string;
   flyerId: string;
 }): ReviewerNoticeEmail {
-  const subject = `Changes requested on your DEF Flyers submission: "${opts.flyerTitle}"`;
-  const text = `The reviewer has requested changes to "${opts.flyerTitle}" before it can be approved.\n\nNotes from the reviewer:\n${opts.notes}\n\nYour flyer is back in draft. Make the changes and re-submit at ${opts.baseUrl}/submit.\n\n— Davis Education Foundation`;
+  const subject = `Changes requested on your Parent Express submission: "${opts.flyerTitle}"`;
+  const text = `The reviewer has requested changes to "${opts.flyerTitle}" before it can be approved.\n\nNotes from the reviewer:\n${opts.notes}\n\nYour flyer is back in draft. Make the changes and re-submit at ${opts.baseUrl}/submit.\n\n— Parent Express`;
   const html = wrap({
     heading: 'Changes requested',
     body: `<p>The reviewer has asked for changes on your flyer <strong>${escapeHtml(opts.flyerTitle)}</strong> before it can go out.</p>
@@ -57,12 +57,12 @@ export function renderApprovalEmail(opts: {
   const verb = opts.scheduled
     ? `Your flyer will be sent on ${date} (Mountain Time).`
     : `Your flyer is approved and will be sent shortly.`;
-  const text = `${verb}\n\nThank you for using DEF Flyers.\n\n— Davis Education Foundation`;
+  const text = `${verb}\n\nThank you for using Parent Express.\n\n— Parent Express`;
   const html = wrap({
     heading: opts.scheduled ? 'Your flyer is scheduled' : 'Your flyer was approved',
     body: `<p><strong>${escapeHtml(opts.flyerTitle)}</strong></p>
       <p>${escapeHtml(verb)}</p>
-      <p>Thank you for using DEF Flyers.</p>`,
+      <p>Thank you for using Parent Express.</p>`,
   });
   return { subject, html, text };
 }
@@ -76,12 +76,12 @@ function wrap(opts: { heading: string; body: string }): string {
 <tr><td align="center">
   <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;max-width:560px;width:100%;">
     <tr><td style="padding:32px 32px 16px;border-bottom:4px solid #0d1b3d;">
-      <p style="margin:0;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#c9a13b;font-weight:600;">Davis Education Foundation</p>
+      <p style="margin:0;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:#c9a13b;font-weight:600;">Parent Express</p>
       <h1 style="margin:6px 0 0;font-size:22px;color:#0d1b3d;font-weight:800;">${escapeHtml(opts.heading)}</h1>
     </td></tr>
     <tr><td style="padding:24px 32px;font-size:15px;line-height:1.55;color:#4a5876;">${opts.body}</td></tr>
     <tr><td style="padding:16px 32px 28px;border-top:1px solid #d8dde7;font-size:12px;color:#4a5876;">
-      Davis Education Foundation · <a href="https://daviskids.org" style="color:#1a2a5e;">daviskids.org</a>
+      Parent Express · © Wicko Waypoint · <a href="https://wickowaypoint.com" style="color:#1a2a5e;">wickowaypoint.com</a>
     </td></tr>
   </table>
 </td></tr></table>

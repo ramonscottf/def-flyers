@@ -3,7 +3,7 @@
 **Read this first.** The full strategy lives in `docs/HANDOFF.md`. This doc is the operational handoff: where things stand right this minute, what to build next, what's already there, what NOT to touch, and how to verify each piece works.
 
 **As of:** April 29, 2026 — initial scaffold deployed by Skippy (Claude Opus 4.7).
-**Live:** https://flyers.daviskids.org · `def-flyers` Worker · 200s on all endpoints.
+**Live:** https://flyers.wickowaypoint.com · `def-flyers` Worker · 200s on all endpoints.
 **Branch:** `codex/phase-1-handoff` (this PR). Merge when ready, then start work on `main` or new feature branches per task.
 
 ---
@@ -11,7 +11,7 @@
 ## 1. What is already done — DO NOT REBUILD
 
 ### Infra (Cloudflare account `77f3d6611f5ceab7651744268d434342`)
-- ✅ Worker `def-flyers` deployed at `flyers.daviskids.org` (custom domain, HTTPS, CSP, NEL)
+- ✅ Worker `def-flyers` deployed at `flyers.wickowaypoint.com` (custom domain, HTTPS, CSP, NEL)
 - ✅ D1 binding `DB` → `dsd-flyers` (id `5b5de1d1-ca4a-4e27-bad5-f0a071a75b58`)
   - 18-table schema applied
   - 69 schools and 10 departments seeded
@@ -74,7 +74,7 @@ submitter logs in via magic link
   - Validate email format
   - Rate limit: 3 requests / hour / email via KV (`ratelimit:magic:{email}`)
   - Generate 32-byte token, hash with SHA-256, store hash in `magic_links` table (token plaintext is what goes in the email)
-  - Email magic link via Resend — link format: `https://flyers.daviskids.org/submit/verify?token=<plaintext>`
+  - Email magic link via Resend — link format: `https://flyers.wickowaypoint.com/submit/verify?token=<plaintext>`
   - TTL 15 minutes (env var `MAGIC_LINK_TTL_MINUTES`)
   - Return `{ok: true}` regardless of whether the email is in the user table (no enumeration leak)
 
@@ -95,7 +95,7 @@ export interface EmailSender {
 }
 // implement ResendSender first; swap in SES for bulk parent digests in Phase 3+
 ```
-Resend "From": `flyers@daviskids.org`. Reply-To: `info@daviskids.org`. Use the REST API at `https://api.resend.com/emails` (no SDK needed in a Worker).
+Resend "From": `flyers@wickowaypoint.com`. Reply-To: `info@wickowaypoint.com`. Use the REST API at `https://api.resend.com/emails` (no SDK needed in a Worker).
 
 #### 2.2 — Submission flow
 - `POST /api/submitter/submit` (auth required) — create `flyers` row with `status='draft'`
@@ -206,7 +206,7 @@ wrangler secret put ANTHROPIC_API_KEY
 
 # Resend (transactional email, Phase 1)
 wrangler secret put RESEND_API_KEY
-# API key from the DEF Resend account, scoped to flyers.daviskids.org
+# API key from the Parent Express Resend account, scoped to flyers.wickowaypoint.com
 
 # Once SES production access is granted (Phase 3, ~24h after request):
 wrangler secret put AWS_SES_KEY
@@ -214,10 +214,10 @@ wrangler secret put AWS_SES_SECRET
 wrangler secret put AWS_SES_REGION  # e.g., us-west-2
 ```
 
-DNS for email auth on `daviskids.org`:
+DNS for email auth on `wickowaypoint.com`:
 - Phase 1 (Resend): SPF `v=spf1 include:_spf.resend.com ~all`, plus the DKIM TXT record Resend issues per domain
 - Phase 3 (add SES): expand SPF to `v=spf1 include:_spf.resend.com include:amazonses.com ~all`, add the SES DKIM TXT records
-- DMARC: `v=DMARC1; p=quarantine; rua=mailto:postmaster@daviskids.org`
+- DMARC: `v=DMARC1; p=quarantine; rua=mailto:postmaster@wickowaypoint.com`
 
 Scott handles vendor account creation if not yet done. Ask before creating accounts in his name.
 
@@ -240,10 +240,10 @@ Codex doesn't have to set up GitHub Actions yet. That's fine for now. We'll add 
 
 After any deploy, smoke test:
 ```bash
-curl -s https://flyers.daviskids.org/health | python3 -m json.tool
-curl -s https://flyers.daviskids.org/api/public/schools | python3 -c "import json,sys; print(len(json.load(sys.stdin)['schools']))"
-curl -s https://flyers.daviskids.org/api/public/departments | python3 -c "import json,sys; print(len(json.load(sys.stdin)['departments']))"
-curl -s https://flyers.daviskids.org/api/public/feed
+curl -s https://flyers.wickowaypoint.com/health | python3 -m json.tool
+curl -s https://flyers.wickowaypoint.com/api/public/schools | python3 -c "import json,sys; print(len(json.load(sys.stdin)['schools']))"
+curl -s https://flyers.wickowaypoint.com/api/public/departments | python3 -c "import json,sys; print(len(json.load(sys.stdin)['departments']))"
+curl -s https://flyers.wickowaypoint.com/api/public/feed
 ```
 
 Expected: 200s, schools=69, departments=10, feed=`{flyers:[],count:0}` until you publish one.
@@ -254,7 +254,7 @@ Expected: 200s, schools=69, departments=10, feed=`{flyers:[],count:0}` until you
 
 These are gating Phase 1 *finishing*, not starting. Build through them.
 
-1. **Resend domain + DKIM** — Scott verifies `daviskids.org` in the existing Resend account and adds the DKIM/SPF records to the zone.
+1. **Resend domain + DKIM** — Scott verifies `wickowaypoint.com` in the existing Resend account and adds the DKIM/SPF records to the zone.
 2. **AWS SES production access** — Phase 3 only; Scott files the request when bulk parent-digest volume justifies the swap (~24h to provision).
 3. **Microsoft Entra app registration** — Scott has emailed Bateman; until ready, admin auth uses the `is_district_admin` flag on `users`.
 4. **Twilio 10DLC** — Phase 2 only. Don't worry about it.
@@ -266,9 +266,9 @@ These are gating Phase 1 *finishing*, not starting. Build through them.
 ## 8. Quick reference
 
 - **Repo:** https://github.com/ramonscottf/def-flyers
-- **Live:** https://flyers.daviskids.org
+- **Live:** https://flyers.wickowaypoint.com
 - **Account:** `77f3d6611f5ceab7651744268d434342`
-- **Zone (daviskids.org):** `e9aac6e9fab72eae9eda35335bc47f40`
+- **Zone (wickowaypoint.com):** `e9aac6e9fab72eae9eda35335bc47f40`
 - **D1:** `dsd-flyers` (id `5b5de1d1-ca4a-4e27-bad5-f0a071a75b58`)
 - **R2:** `dsd-flyers-assets`
 - **KV:** `72249a65614a42f987b766e8ee616f68`

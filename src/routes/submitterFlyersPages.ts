@@ -265,14 +265,14 @@ function shell(opts: ShellOpts): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${escapeHtml(opts.title)} · DEF Flyers</title>
+<title>${escapeHtml(opts.title)} · Parent Express</title>
 <meta name="robots" content="noindex">
 <style>${SHARED_CSS}</style>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
 <header class="bar"><div class="inner">
-  <h1><a href="/submit/flyers" style="color:#fff;text-decoration:none;">DEF Flyers — submit</a></h1>
+  <h1><a href="/submit/flyers" style="color:#fff;text-decoration:none;">Parent Express — submit</a></h1>
   <nav>
     <a href="/submit/flyers">My flyers</a>
     <a href="/submit/new">New flyer</a>
@@ -287,7 +287,7 @@ function shell(opts: ShellOpts): string {
   ${flash}
   ${opts.body}
 </main>
-<footer>Davis Education Foundation · <a href="https://daviskids.org">daviskids.org</a></footer>
+<footer>Parent Express · © Wicko Waypoint · <a href="https://wickowaypoint.com">wickowaypoint.com</a></footer>
 </body>
 </html>`;
 }
@@ -453,7 +453,7 @@ function flyerForm(opts: {
       (a) =>
         `<label class="choice"><input type="radio" name="audience" value="${a}" ${
           opts.state.audience === a ? 'checked' : ''
-        }> ${a === 'parents' ? 'Parents & families' : a === 'employees' ? 'DSD employees' : 'Both'}</label>`,
+        }> ${a === 'parents' ? 'Parents & families' : a === 'employees' ? 'School staff' : 'Both'}</label>`,
     )
     .join('');
   const scopeRadios = ['school', 'department', 'district']
@@ -1031,7 +1031,7 @@ pages.get('/submit/flyer/:id', async (c) => {
 
   const finalizeBlock = isDraft
     ? `<h3>Submit for review</h3>
-       <p class="help">Once submitted, the AI pipeline runs (translation, moderation, accessibility check) and a DEF reviewer takes over. You can't edit while it's under review.</p>
+       <p class="help">Once submitted, the AI pipeline runs (translation, moderation, accessibility check) and a reviewer takes over. You can't edit while it's under review.</p>
        <form method="POST" action="/submit/flyer/${escapeHtml(flyer.id)}/finalize">
          <button type="submit" class="btn">Submit for review</button>
        </form>`

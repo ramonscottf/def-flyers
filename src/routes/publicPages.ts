@@ -22,7 +22,7 @@ function escapeHtml(s: string | null | undefined): string {
 
 function notFound(message = 'Flyer not found.'): Response {
   return new Response(
-    `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Not found · DEF Flyers</title>
+    `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Not found · Parent Express</title>
 <style>body{font-family:system-ui;margin:60px auto;max-width:480px;padding:0 24px;color:#0d1b3d}a{color:#1a2a5e}</style>
 </head><body>
 <h1>Not found</h1><p>${escapeHtml(message)}</p>
@@ -207,7 +207,7 @@ pages.get('/board', async (c) => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${escapeHtml(t.title)} · DEF Flyers</title>
+<title>${escapeHtml(t.title)} · Parent Express</title>
 <meta name="description" content="${escapeHtml(t.description)}">
 <style>
   :root{--navy:#0d1b3d;--navy-2:#1a2a5e;--gold:#c9a13b;--red:#b1252f;--card:#f3f5f9;--ink:#0d1b3d;--ink-2:#4a5876;--rule:#d8dde7}
@@ -241,7 +241,7 @@ pages.get('/board', async (c) => {
 <body>
 <a class="skip-link" href="#main">${escapeHtml(t.skipLink)}</a>
 <header class="bar"><div class="inner">
-  <h1><a href="/board">DEF Flyers</a></h1>
+  <h1><a href="/board">Parent Express</a></h1>
   <a href="/board?lang=${lang === 'es' ? 'en' : 'es'}">${lang === 'es' ? 'English' : 'Español'}</a>
 </div></header>
 <main id="main">
@@ -256,17 +256,17 @@ pages.get('/board', async (c) => {
 const STRINGS = {
   en: {
     title: 'Flyer board',
-    description: 'Community flyers and district announcements for Davis School District.',
+    description: 'Community flyers and district announcements for local schools.',
     empty: 'No flyers published yet.',
     skipLink: 'Skip to main content',
-    footer: 'Davis Education Foundation, in partnership with Davis School District',
+    footer: 'Parent Express',
   },
   es: {
     title: 'Tablero de folletos',
-    description: 'Folletos comunitarios y anuncios del distrito para Davis School District.',
+    description: 'Folletos comunitarios y anuncios del distrito para the school district.',
     empty: 'Todavía no hay folletos publicados.',
     skipLink: 'Saltar al contenido principal',
-    footer: 'Davis Education Foundation, en colaboración con Davis School District',
+    footer: 'Parent Express',
   },
 } as const;
 

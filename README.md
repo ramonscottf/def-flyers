@@ -1,16 +1,16 @@
-# DEF Flyers
+# Parent Express
 
-Community flyer + DSD Ads platform for the Davis Education Foundation.
-Replaces Peachjar (parent flyers) and DSD Ads (employee blasts) with one Foundation-owned, accessible, opt-in channel.
+Community flyer + the district Ads platform for the Parent Express.
+Replaces Peachjar (parent flyers) and the district Ads (employee blasts) with one Foundation-owned, accessible, opt-in channel.
 
-**Live:** https://flyers.daviskids.org · **Repo:** https://github.com/ramonscottf/def-flyers
+**Live:** https://flyers.wickowaypoint.com · **Repo:** https://github.com/ramonscottf/def-flyers
 **Owner:** Scott Foster (ramonscottf@gmail.com)
 
 ---
 
 ## Status (April 29, 2026)
 
-✅ **Scaffold deployed.** Worker live on `flyers.daviskids.org`. Schema + seed data preserved from prior `dsd-flyers` build (69 schools, 10 departments). Public endpoints returning 200.
+✅ **Scaffold deployed.** Worker live on `flyers.wickowaypoint.com`. Schema + seed data preserved from prior `dsd-flyers` build (69 schools, 10 departments). Public endpoints returning 200.
 
 🔨 **Phase 1 (MVP) work begins now.** See **[`CODEX_BRIEF.md`](./CODEX_BRIEF.md)** for the operational handoff — it's the authoritative "build this next" doc. The full strategy (synthesized from two long research plans + Codex's review) lives in **[`docs/HANDOFF.md`](./docs/HANDOFF.md)**.
 
@@ -23,7 +23,7 @@ Replaces Peachjar (parent flyers) and DSD Ads (employee blasts) with one Foundat
 | `GET /` | 200 | Accessible landing page, no JS, navy/red/gold |
 | `GET /health` | 200 | `{ok, service, env, db, ts}` |
 | `GET /api/public/schools` | 200 | All 69 Davis SD schools |
-| `GET /api/public/departments` | 200 | All 10 DSD departments |
+| `GET /api/public/departments` | 200 | All 10 the district departments |
 | `GET /api/public/feed` | 200 | Published flyers (empty until first publish) |
 | `/api/submitter/*` | 501 | Phase 1 stubs |
 | `/api/admin/*` | 501 | Phase 1 stubs |
@@ -48,7 +48,7 @@ Replaces Peachjar (parent flyers) and DSD Ads (employee blasts) with one Foundat
 npm install
 npm run typecheck
 npm run dev              # local with wrangler
-npm run deploy           # deploy to flyers.daviskids.org
+npm run deploy           # deploy to flyers.wickowaypoint.com
 npm run db:migrate       # apply schema (idempotent)
 npm run db:seed          # apply seed data (idempotent — INSERT OR IGNORE)
 ```
@@ -89,7 +89,7 @@ def-flyers/
 | **0** Governance | Peachjar review, DPA, sender-of-record, policies, rate-card sign-off, Twilio 10DLC submission, Entra request | Scott drives, in progress |
 | **1** MVP | Submitter portal, AI pipeline, reviewer queue, email-only delivery, public flyer board | **Now** |
 | **2** SMS + Prefs | Twilio Verify, double opt-in, preference center, emergency-only lane | After 10DLC APPROVED |
-| **3** Replace Peachjar + DSD Ads | Tiered pricing live, DSD Ads tenant, submitter analytics | After Phase 2 stable |
+| **3** Replace Peachjar + the district Ads | Tiered pricing live, the district Ads tenant, submitter analytics | After Phase 2 stable |
 | **4** Parent Hub | Emergency alerts, event reminders, volunteer signups | 90+ days post-launch |
 
 ## Non-negotiables
@@ -98,7 +98,7 @@ def-flyers/
 2. **HTML-first, PDF supplemental** — structured fields *before* upload
 3. **Separate Stripe account** for flyer revenue (don't mix with donation Stripe)
 4. **Twilio 10DLC submitted Day 1** — SMS doesn't exist until APPROVED
-5. **DEF is the contracting party with parents, not DSD** (Peachjar lock-in clause)
+5. **Parent Express is the contracting party with parents, not the district** (Peachjar lock-in clause)
 6. **WCAG 2.1 AA at launch** — Section 504 applies now
 7. **TCPA full PEWC, double opt-in, STOP within 10 business days**
 8. **No `sed` on production HTML** — CSS-only, reviewed
@@ -116,5 +116,5 @@ See `CODEX_BRIEF.md` for the full Phase 1 build sequence.
 | R2 | `dsd-flyers-assets` | — |
 | KV | `dsd-flyers-kv` | `72249a65614a42f987b766e8ee616f68` |
 | Vectorize | `skippy-memory` (shared, 768-dim, bge-base-en-v1.5) | — |
-| Zone | daviskids.org | `e9aac6e9fab72eae9eda35335bc47f40` |
+| Zone | wickowaypoint.com | `e9aac6e9fab72eae9eda35335bc47f40` |
 | Account | Scott | `77f3d6611f5ceab7651744268d434342` |

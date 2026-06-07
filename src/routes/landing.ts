@@ -1,4 +1,4 @@
-// Landing page for flyers.daviskids.org
+// Landing page for flyers.wickowaypoint.com
 // Skippy rule: no entrance animations. Heroes stay still. No Squarespace energy.
 
 export function renderLanding(stats: { schools: number; depts: number; flyers: number }) {
@@ -7,8 +7,8 @@ export function renderLanding(stats: { schools: number; depts: number; flyers: n
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DEF Flyers — Davis Education Foundation</title>
-<meta name="description" content="Community flyers and announcements for Davis School District families and employees, from the Davis Education Foundation.">
+<title>Parent Express</title>
+<meta name="description" content="Community flyers and announcements for school families and employees, from Parent Express.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📬</text></svg>">
 <style>
   :root {
@@ -153,16 +153,16 @@ export function renderLanding(stats: { schools: number; depts: number; flyers: n
 
 <header class="hero">
   <div class="hero-inner">
-    <p class="eyebrow">Davis Education Foundation</p>
-    <h1>DEF Flyers</h1>
-    <p class="lede">Community flyers and district announcements for Davis School District families and employees — accessible, translated, opt-in.</p>
-    <p class="hero-meta">In partnership with Davis School District · WCAG 2.1 AA · English &amp; Español</p>
+    <p class="eyebrow">Parent Express</p>
+    <h1>Parent Express</h1>
+    <p class="lede">Community flyers and district announcements for school families and employees — accessible, translated, opt-in.</p>
+    <p class="hero-meta">WCAG 2.1 AA · English &amp; Español</p>
   </div>
 </header>
 
 <main id="main">
   <div class="status">
-    <strong>Status:</strong> Platform under active build. Submission opens to local nonprofits in pilot soon. Questions: <a href="mailto:info@daviskids.org">info@daviskids.org</a>
+    <strong>Status:</strong> Platform under active build. Submission opens to local nonprofits in pilot soon. Questions: <a href="mailto:info@wickowaypoint.com">info@wickowaypoint.com</a>
   </div>
 
   <section aria-labelledby="stats-h">
@@ -200,13 +200,13 @@ export function renderLanding(stats: { schools: number; depts: number; flyers: n
   </section>
 
   <section aria-labelledby="diff-h">
-    <h2 id="diff-h">Why DEF Flyers</h2>
-    <p>Every flyer is reviewed by a real person. Every flyer is rebuilt as accessible HTML with proper alt text, structured headings, and a Spanish translation. Every parent picks what they want to see — and can opt out in one click. The Foundation owns the channel, end-to-end, in Davis County.</p>
+    <h2 id="diff-h">Why Parent Express</h2>
+    <p>Every flyer is reviewed by a real person. Every flyer is rebuilt as accessible HTML with proper alt text, structured headings, and a Spanish translation. Every parent picks what they want to see — and can opt out in one click. One trusted channel for every community flyer, end-to-end.</p>
   </section>
 </main>
 
 <footer>
-  <p>Davis Education Foundation · 70 East 100 North, Farmington UT · <a href="https://daviskids.org">daviskids.org</a></p>
+  <p>Parent Express · © Wicko Waypoint · <a href="https://wickowaypoint.com">wickowaypoint.com</a></p>
   <p><a href="/policies/privacy">Privacy</a> · <a href="/policies/accessibility">Accessibility</a> · <a href="/policies/tcpa">SMS Terms</a></p>
 </footer>
 

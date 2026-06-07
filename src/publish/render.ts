@@ -39,7 +39,7 @@ export interface RenderOptions {
 const STRINGS = {
   en: {
     skipLink: 'Skip to main content',
-    eyebrow: 'Davis Education Foundation',
+    eyebrow: 'Parent Express',
     publishedOn: 'Published',
     audience: 'Audience',
     scope: 'Scope',
@@ -53,8 +53,8 @@ const STRINGS = {
     languageHref: 'es',
     download: 'Download original PDF',
     fromSubmitter: 'Submitted by',
-    footerNote: 'Davis Education Foundation, in partnership with Davis School District',
-    audiences: { parents: 'Parents & families', employees: 'DSD employees', both: 'Parents & employees' } as Record<string, string>,
+    footerNote: 'Parent Express',
+    audiences: { parents: 'Parents & families', employees: 'School staff', both: 'Parents & employees' } as Record<string, string>,
     scopes: { school: 'School', department: 'Department', district: 'District-wide' } as Record<string, string>,
   },
   es: {
@@ -73,8 +73,8 @@ const STRINGS = {
     languageHref: 'en',
     download: 'Descargar PDF original',
     fromSubmitter: 'Enviado por',
-    footerNote: 'Davis Education Foundation, en colaboración con Davis School District',
-    audiences: { parents: 'Padres y familias', employees: 'Empleados de DSD', both: 'Padres y empleados' } as Record<string, string>,
+    footerNote: 'Parent Express',
+    audiences: { parents: 'Padres y familias', employees: 'Personal escolar', both: 'Padres y empleados' } as Record<string, string>,
     scopes: { school: 'Escuela', department: 'Departamento', district: 'A nivel de distrito' } as Record<string, string>,
   },
 } as const;
@@ -143,7 +143,7 @@ export function renderFlyerPage(flyer: FlyerForRender, opts: RenderOptions): str
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${escapeHtml(titleSrc)} · DEF Flyers</title>
+<title>${escapeHtml(titleSrc)} · Parent Express</title>
 <meta name="description" content="${escapeHtml(summarySrc)}">
 <link rel="canonical" href="${opts.baseUrl}/flyer/${escapeHtml(flyer.slug)}">
 <style>
@@ -177,7 +177,7 @@ export function renderFlyerPage(flyer: FlyerForRender, opts: RenderOptions): str
 <a class="skip-link" href="#main">${t.skipLink}</a>
 <header class="bar">
   <div class="inner">
-    <h1><a href="${opts.baseUrl}/board" lang="en">DEF Flyers</a></h1>
+    <h1><a href="${opts.baseUrl}/board" lang="en">Parent Express</a></h1>
     <a href="${langLink}" lang="${t.languageHref}">${t.languageToggle}</a>
   </div>
 </header>

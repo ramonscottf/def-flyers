@@ -48,7 +48,7 @@ function pageShell(opts: {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${escapeHtml(title)} · DEF Flyers</title>
+<title>${escapeHtml(title)} · Parent Express</title>
 <meta name="robots" content="noindex">
 <style>
   :root {
@@ -99,7 +99,7 @@ function pageShell(opts: {
 <a class="skip-link" href="#main">Skip to main content</a>
 <header class="bar">
   <div class="inner">
-    <h1><a href="/" style="color:#fff;text-decoration:none;">DEF Flyers</a></h1>
+    <h1><a href="/" style="color:#fff;text-decoration:none;">Parent Express</a></h1>
     <span class="who"><a href="/">← Home</a></span>
   </div>
 </header>
@@ -108,7 +108,7 @@ function pageShell(opts: {
   ${body}
 </main>
 <footer>
-  <p>Davis Education Foundation · <a href="https://daviskids.org">daviskids.org</a></p>
+  <p>Parent Express · © Wicko Waypoint · <a href="https://wickowaypoint.com">wickowaypoint.com</a></p>
 </footer>
 </body>
 </html>`;

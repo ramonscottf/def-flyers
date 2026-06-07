@@ -67,7 +67,7 @@ export function getTransactionalSender(env: Bindings): EmailSender {
   }
   return new ResendSender(
     env.RESEND_API_KEY,
-    'flyers@daviskids.org',
+    'Parent Express <flyers@daviskids.org>',
     'info@daviskids.org',
   );
 }

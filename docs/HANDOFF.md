@@ -1,8 +1,8 @@
-# DEF Flyers — Build Handoff
-**Project codename:** Skippy / DEF Flyers
+# Parent Express — Build Handoff
+**Project codename:** Skippy / Parent Express
 **Repo:** `ramonscottf/def-flyers`
-**Domain:** `flyers.daviskids.org` (everything — single Worker serves UI + API + short links)
-**Owner:** Scott Foster (DEF) · **Build agent:** Codex
+**Domain:** `flyers.wickowaypoint.com` (everything — single Worker serves UI + API + short links)
+**Owner:** Scott Foster (Parent Express) · **Build agent:** Codex
 **Synthesis date:** April 29, 2026
 **Status:** Phase 0 (governance) starts now. Phase 1 (MVP) begins after Phase 0 sign-off.
 
@@ -12,9 +12,9 @@
 
 This is a synthesis. Two long research plans were generated, plus Codex's review of both. Codex's verdict: **Plan 2 is the stronger build plan, Plan 1 has the stronger product vision, and neither should be built as written.** This doc is the third hybrid plan — Plan 2's operational grounding plus Plan 1's parent-first, accessibility-first product thinking, with all of Codex's guardrails applied.
 
-The product replaces two channels DEF already owns:
+The product replaces two channels Parent Express already owns:
 1. **Peachjar** — community-org → parent flyers (~$2,300/district-wide flyer at $25 × 92 schools)
-2. **DSD Ads** — sponsor-paid emails to ~8,000 DSD employees (gala packages: Gold $7,500 = 1 send; Platinum $10,000 = 2)
+2. **the district Ads** — sponsor-paid emails to ~8,000 School staff (gala packages: Gold $7,500 = 1 send; Platinum $10,000 = 2)
 
 Both ride the same submit → review → publish → notify → measure loop. Build the audience model abstract from day one — parents and employees are two tenants of one system, not two products.
 
@@ -27,10 +27,9 @@ These come straight from Codex's review and Scott's operating principles. If a l
 1. **Phase 0 (governance) ships before Phase 1 (code).** Peachjar contract review, DPA, sender-of-record decision, flyer/sponsor/privacy/TCPA policy, accessibility statement, Twilio 10DLC submission. No parent data moves until these exist.
 2. **AI assists, does not decide.** Every flyer gets human review at launch. Auto-publish "green-lane" only ships after we have local evidence the AI is right.
 3. **HTML-first, PDF supplemental.** Submitters fill structured fields *before* uploading. The published artifact is accessible HTML. Original PDF is stored in R2 as evidence/attachment, never as the canonical render.
-4. **Separate Stripe account for flyer revenue.** DEF's existing Stripe runs donations and qualifies for the 2.2% nonprofit rate only if >80% of volume is tax-deductible. Flyer revenue is not a donation. Open a second Stripe account at standard 2.9% + $0.30. Do not co-mingle.
+4. **Separate Stripe account for flyer revenue.** Parent Express's existing Stripe runs donations and qualifies for the 2.2% nonprofit rate only if >80% of volume is tax-deductible. Flyer revenue is not a donation. Open a second Stripe account at standard 2.9% + $0.30. Do not co-mingle.
 5. **Twilio Charity 10DLC submission goes in on Day 1 of Phase 1.** Approval takes 2–4 weeks. SMS does not exist as a feature until the campaign shows APPROVED. Do not promise launch dates that depend on it.
 6. **Provider abstractions for AI and SMS.** AI client wrapper takes a provider arg (`anthropic` | `cf-workers-ai`); SMS client wrapper takes a provider arg (`twilio` | `telnyx`). Start with Anthropic Claude (Sonnet 4.6 + Haiku 4.5) and Twilio. Do not hardcode either.
-7. **DEF is the contracting party with parents, not DSD.** Peachjar's vendor lock-in clause forbids the *district* from running an alternative free channel. The Foundation is a separate 501(c)(3) and can. Every parent-facing surface reads "from Davis Education Foundation, in partnership with Davis School District."
 8. **WCAG 2.1 AA at launch.** The DOJ April 20, 2026 IFR moved the Title II deadline to April 26, 2027 — but Section 504 and private litigation apply now. Build to AA. Axe-core in CI from day one.
 9. **TCPA: full Prior Express Written Consent, double opt-in, STOP honored within 10 business days.** No bundling fundraising into informational SMS. Sweepstakes only — never the word "raffle" (Utah Code §76-10-1101).
 10. **No `sed` on production HTML.** CSS-only edits, reviewed before deploy. Standing Skippy rule, applies here.
@@ -42,8 +41,8 @@ These come straight from Codex's review and Scott's operating principles. If a l
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  flyers.daviskids.org   ←  Cloudflare Pages (Astro SSR)    │
-│  go.daviskids.org        ←  separate small Worker           │
+│  flyers.wickowaypoint.com   ←  Cloudflare Pages (Astro SSR)    │
+│  go.wickowaypoint.com        ←  separate small Worker           │
 └─────────────────────────────────────────────────────────────┘
                   │
                   ▼
@@ -89,19 +88,17 @@ These come straight from Codex's review and Scott's operating principles. If a l
 
 Codex was emphatic: do this first. None of it is Codex's job to ship. Scott drives.
 
-- [ ] **Peachjar contract review.** Termination clause, vendor lock-in language, current credit balance. Determine whether DEF can run Connect in parallel or whether it must wait for the Peachjar agreement to expire.
-- [ ] **Sender-of-record decision.** Is DEF or DSD the controller of parent data? Recommendation: **DEF**, because Peachjar's vendor lock-in clause binds the *district*, and DEF as a separate 501(c)(3) is not bound. Confirm with district counsel.
+- [ ] **Peachjar contract review.** Termination clause, vendor lock-in language, current credit balance. Determine whether Parent Express can run Connect in parallel or whether it must wait for the Peachjar agreement to expire.
 - [ ] **DPA.** Execute or confirm a Data Processing Agreement consistent with Utah Code § 53E-9-309 if any SIS or roster data flows. Use SDPC Utah Alliance template. Davis SD is a member.
-- [ ] **FERPA notice.** Confirm Davis SD's annual FERPA notice covers DEF as a "school official" (or contractor performing district communications). If it doesn't, Phase 1 cannot pull from SIS — parents opt in directly through marketing channels.
-- [ ] **Policies drafted, reviewed, and posted at /policies on flyers.daviskids.org before launch:**
+- [ ] **FERPA notice.** Confirm Davis SD's annual FERPA notice covers Parent Express as a "school official" (or contractor performing district communications). If it doesn't, Phase 1 cannot pull from SIS — parents opt in directly through marketing channels.
+- [ ] **Policies drafted, reviewed, and posted at /policies on flyers.wickowaypoint.com before launch:**
   - Flyer policy (eligibility tiers, prohibited content, decision criteria, appeals)
   - Sponsor policy (placement rules, non-endorsement language)
   - Privacy policy (data collected, retention, sharing, parent rights)
   - TCPA consent language (versioned — every change gets a new version number stored in `consent_log`)
   - WCAG 2.1 AA conformance statement (per the Section 508 ICT Accessibility Statement template)
-- [ ] **Twilio Trust Hub Customer Profile filed as Non-Profit; NON_PROFIT brand submitted; Charity 501(c)(3) campaign vetting submitted with sample messages, opt-in screencast, T&C URLs.** This is the *only* code-adjacent task in Phase 0 because the carrier review clock is 2–4 weeks and we want it ticking.
-- [ ] **Microsoft Entra app registration request** sent to Michael Bateman (mbateman@dsdmail.net). Redirect URI: `https://flyers.daviskids.org/auth/callback`. Group claims required for role assignment.
-- [ ] **Confirm current dsdads workflow.** Scott pulls from inside DEF: what platform actually sends today (district mail server, Constant Contact, Mailchimp, M365 distribution group), how submission happens today, who approves, what a current sponsor pays.
+- [ ] **Microsoft Entra app registration request** sent to Michael Bateman (mbateman@dsdmail.net). Redirect URI: `https://flyers.wickowaypoint.com/auth/callback`. Group claims required for role assignment.
+- [ ] **Confirm current dsdads workflow.** Scott pulls from inside Parent Express: what platform actually sends today (district mail server, Constant Contact, Mailchimp, M365 distribution group), how submission happens today, who approves, what a current sponsor pays.
 - [ ] **Confirm `skippy-memory` dimension.** Per Scott's memory: 768-dim, bge-base-en-v1.5. This is the embedder we use. Do not switch without re-indexing.
 - [ ] **Get rate-card sign-off from Sherry Miggin and Kara Toone.** Tier table is in §10 below. Do not ship pricing without their go.
 
@@ -116,19 +113,19 @@ Ship only the core loop. **Email-only at launch.** SMS is Phase 2. Codex was exp
 - **Structured-fields-first, upload-second** submission flow (title, date, time, location, body text, audience, registration URL, contact — all required; PDF/image upload is supplemental evidence, never the canonical render)
 - AI ingest pipeline (Queue Consumer) — Sonnet 4.6 vision for OCR/extraction/alt-text/image-of-text detection, Haiku 4.5 for moderation/translation/SMS condensing, Worker JS for WCAG contrast math
 - Reviewer queue with green/yellow/red lanes — **every flyer requires human approval at launch.** No auto-publish.
-- HTML-first rendered output stored in R2, served from `flyers.daviskids.org/flyer/:id` with EN/ES toggle
-- Public flyer board at `flyers.daviskids.org/board` (and `/board?school=:id`), HTMX-driven filters, fully indexable static-first
+- HTML-first rendered output stored in R2, served from `flyers.wickowaypoint.com/flyer/:id` with EN/ES toggle
+- Public flyer board at `flyers.wickowaypoint.com/board` (and `/board?school=:id`), HTMX-driven filters, fully indexable static-first
 - Email distribution via **Postmark for transactional + AWS SES for bulk** (Resend listed in earlier plans — we are not using Resend for bulk; SES has better economics above 250K/mo and is what Codex's plan calls for)
 - Stripe Checkout (separate account, test mode → live)
 - Parent email-only opt-in with verification, preference center skeleton (school, language, unsubscribe)
 - Consent log, suppression list, audit log
 - Axe-core CI gate (PRs blocked on AA violations)
-- Replace `/advertise-peachjar.html` and `/advertise-dsd-ads.html` on daviskids.org with "Coming soon — submit at flyers.daviskids.org" landing pages
+- Replace `/advertise-peachjar.html` and `/advertise-dsd-ads.html` on wickowaypoint.com with "Coming soon — submit at flyers.wickowaypoint.com" landing pages
 
 **Out of scope for Phase 1:**
 - SMS (any kind)
 - Auto-publish/green-lane
-- DSD Ads tenant (employee channel — Phase 3)
+- the district Ads tenant (employee channel — Phase 3)
 - Sponsor self-service portal
 - Two-way chat / RSVP / calendar add
 - Parent Hub features
@@ -144,7 +141,7 @@ Triggered by Twilio campaign showing APPROVED, not by a calendar date.
 - Twilio Verify phone OTP
 - Double opt-in SMS ("Reply YES to confirm")
 - Parent preference center expansion: schools, grades, language, topics, channels, quiet hours (default 8 PM–8 AM), weekly cap (default 2), **emergency-only toggle**
-- Branded short links at `go.daviskids.org/<slug>` — never generic shorteners (carrier-flagged)
+- Branded short links at `go.wickowaypoint.com/<slug>` — never generic shorteners (carrier-flagged)
 - Sweepstakes-structured opt-in incentive ("NO PURCHASE NECESSARY," AMOE published) — never "raffle"
 - 130-char Haiku-generated SMS summary per flyer
 - Reviewer audit log surfaced in admin UI
@@ -152,11 +149,11 @@ Triggered by Twilio campaign showing APPROVED, not by a calendar date.
 - IRS Pub 78 + 990 lookup automation for org tier verification
 - **No MMS.** Defer indefinitely unless a specific use case proves it.
 
-### Phase 3 — Replace Peachjar + DSD Ads (8+ weeks out)
+### Phase 3 — Replace Peachjar + the district Ads (8+ weeks out)
 
 - Rewrite `/advertise-peachjar.html` and `/advertise-dsd-ads.html` to point at the live submitter portal
 - Launch Community Free + Local Nonprofit + Standard + Premium tiers (rate card in §10)
-- **DSD Ads tenant** added as a second audience/channel in the same review system (employees ↔ parents, ad-vs-flyer disclaimer differs)
+- **the district Ads tenant** added as a second audience/channel in the same review system (employees ↔ parents, ad-vs-flyer disclaimer differs)
 - Submitter analytics dashboard (deliveries, opens, clicks, school reach, language reach — Stripe-pattern)
 - Apptegy iframe embeds + RSS/JSON feeds for school sites
 - ICS calendar feed (one-tap add)
@@ -170,20 +167,20 @@ Only after the core loop has earned trust. Emergency alerts, event reminders, di
 
 ## 4. Cloudflare resources to create
 
-Account: `77f3d6611f5ceab7651744268d434342` · Zone (daviskids.org): `e9aac6e9fab72eae9eda35335bc47f40`
+Account: `77f3d6611f5ceab7651744268d434342` · Zone (wickowaypoint.com): `e9aac6e9fab72eae9eda35335bc47f40`
 
 | Resource | Name | Purpose |
 |---|---|---|
 | Pages project | `def-flyers` | Astro app, parent/submitter UI |
 | Worker | `def-flyers-api` | Hono router, all API routes |
-| Worker | `def-flyers-go` | `go.daviskids.org` short-link redirector |
+| Worker | `def-flyers-go` | `go.wickowaypoint.com` short-link redirector |
 | D1 database | `def-flyers-db` | Single DB, schema in §6 |
 | R2 bucket | `def-flyers-flyers-raw` | Original uploads (PDF/PNG/JPG, evidence) |
 | R2 bucket | `def-flyers-flyers-html` | Generated accessible HTML, EN + ES |
 | R2 bucket | `def-flyers-archive` | Quarterly delivery_events archives |
 | KV namespace | `def-flyers-sessions` | Session tokens, JWKs cache |
 | KV namespace | `def-flyers-rate` | Rate-limit counters |
-| KV namespace | `def-flyers-shortlinks` | `go.daviskids.org` slug → URL + click counter |
+| KV namespace | `def-flyers-shortlinks` | `go.wickowaypoint.com` slug → URL + click counter |
 | Queue | `def-ai-pipeline` | AI fan-out for new flyers; max_batch_size=1, max_retries=3, DLQ |
 | Queue | `def-email-batch` | Postmark + SES fan-out; max_batch_size=25 |
 | Queue | `def-sms-batch` | Twilio fan-out, throttled to campaign MPS (Phase 2) |
@@ -193,11 +190,11 @@ Account: `77f3d6611f5ceab7651744268d434342` · Zone (daviskids.org): `e9aac6e9fa
 | Cron | `daily-distribute` | 06:00 MT, builds + dispatches digests |
 | Cron | `nightly-ada-rescan` | 02:00 MT, axe-core on published flyers |
 | Cron | `quarterly-archive` | 1st of quarter, archives delivery_events to R2 |
-| Email Routing | `submit@daviskids.org` | Inbound vendor submissions (Phase 3) |
-| DNS | `flyers.daviskids.org` | → Pages |
-| DNS | `go.daviskids.org` | → `def-flyers-go` Worker |
-| DNS | `mail.daviskids.org` | SPF/DKIM/DMARC for Postmark + SES |
-| DNS | `flyers.daviskids.org` | 301 reserved for SEO/legacy |
+| Email Routing | `submit@wickowaypoint.com` | Inbound vendor submissions (Phase 3) |
+| DNS | `flyers.wickowaypoint.com` | → Pages |
+| DNS | `go.wickowaypoint.com` | → `def-flyers-go` Worker |
+| DNS | `mail.wickowaypoint.com` | SPF/DKIM/DMARC for Postmark + SES |
+| DNS | `flyers.wickowaypoint.com` | 301 reserved for SEO/legacy |
 
 **Cloudflare auth rule (Skippy standing rule):** always use `X-Auth-Key` + `X-Auth-Email` (Global API Key) headers when scripting against the CF API. Never Bearer token. This has caused repeated failures historically.
 
@@ -281,7 +278,7 @@ def-flyers/
 │   │   ├── notify/
 │   │   │   ├── email.ts              # Postmark transactional + SES bulk
 │   │   │   ├── sms.ts                # provider abstraction (twilio | telnyx); Phase 2
-│   │   │   └── shortlinks.ts         # go.daviskids.org slug mgmt
+│   │   │   └── shortlinks.ts         # go.wickowaypoint.com slug mgmt
 │   │   ├── db/
 │   │   │   ├── schema.ts             # Drizzle schema (mirrors §6)
 │   │   │   ├── migrations/
@@ -332,7 +329,6 @@ Single database. Drizzle schema in `src/server/db/schema.ts` mirrors this. Migra
 CREATE TABLE orgs (
   id TEXT PRIMARY KEY,                   -- ulid
   name TEXT NOT NULL,
-  ein TEXT,                              -- IRS EIN if 501(c)(3)
   status TEXT NOT NULL,                  -- pending|verified|suspended
   tier TEXT NOT NULL,                    -- community_free|local_nonprofit|standard|premium|sponsor|district
   contact_email TEXT NOT NULL,
@@ -546,7 +542,7 @@ CREATE INDEX idx_magic_email ON magic_link_tokens(email, expires_at);
 
 -- ─── Short links ───────────────────────────────────────────────────────────
 CREATE TABLE sms_short_links (
-  slug TEXT PRIMARY KEY,                 -- 5–6 chars in go.daviskids.org/<slug>
+  slug TEXT PRIMARY KEY,                 -- 5–6 chars in go.wickowaypoint.com/<slug>
   long_url TEXT NOT NULL,
   flyer_id TEXT REFERENCES flyers(id),
   click_count INTEGER DEFAULT 0,
@@ -588,7 +584,7 @@ CREATE TABLE sms_short_links (
 
 | Surface | Mechanism |
 |---|---|
-| Staff (admin, reviewer) | **Microsoft Entra ID via OIDC auth-code-with-PKCE.** Bateman provisions the app registration. Group claims drive role assignment (DEF Reviewer, DEF Admin). |
+| Staff (admin, reviewer) | **Microsoft Entra ID via OIDC auth-code-with-PKCE.** Bateman provisions the app registration. Group claims drive role assignment (Parent Express Reviewer, Parent Express Admin). |
 | Submitter (community org, vendor) | **Magic link** — 15-min expiry, hashed in D1, single-use, rate-limited per email per hour. |
 | Parent | Magic link (email) for opt-in and prefs. **Twilio Verify phone OTP** as fallback in Phase 2. |
 | API → API | Workers secrets, never in chat or repo. |
@@ -604,16 +600,15 @@ Sessions: HttpOnly Secure SameSite=Lax cookies, signed with a Workers secret HS2
 **Email (Phase 1 launch):**
 - **Postmark** for transactional (magic links, receipts, vendor approval notices, employee notifications) — $15/mo Basic
 - **AWS SES** for bulk parent digests — $0.10/1K, plus $24.95/mo dedicated IP once sustained sending crosses ~250K/mo
-- SPF, DKIM, DMARC required from Day 1. `mail.daviskids.org` subdomain.
+- SPF, DKIM, DMARC required from Day 1. `mail.wickowaypoint.com` subdomain.
 - **Cloudflare Email Service** is in beta — defer adoption. **Do not use MailChannels** — discontinued for free Workers in 2024.
 - **Do not use Resend for bulk.** It was in earlier drafts; SES has better economics above 250K/mo. Postmark + SES is the answer.
 
 **SMS (Phase 2, after 10DLC APPROVED):**
-- **Twilio Charity 501(c)(3) campaign** — $4.50 brand + $15 campaign vetting + $3/mo recurring + per-segment fees
 - T-Mobile per-segment carrier-fee waiver applies automatically once Charity status is verified
 - ~75 MPS on AT&T → 50K-recipient broadcast in ~11 min
 - **Telnyx is the abstraction-layer fallback.** If Twilio costs/availability shift, the SMS client wrapper makes switching a config change.
-- Branded short links at `go.daviskids.org/<slug>` only. Generic shorteners are carrier-flagged.
+- Branded short links at `go.wickowaypoint.com/<slug>` only. Generic shorteners are carrier-flagged.
 - MMS deferred indefinitely — 3–4× cost, transcoding/accessibility problems.
 
 ---
@@ -624,11 +619,9 @@ Codex was clear: don't ship pricing without internal sign-off. This is the propo
 
 | Tier | Eligibility | Per-school | District-wide | Annual unlimited |
 |---|---|---|---|---|
-| **Community Free** | 501(c)(3), local, ≤1 flyer/month, no fundraising | $0 | $0 | — |
-| **Local Nonprofit** | Verified 501(c)(3), youth-focused | $15 | $300 | $1,500/yr (5/mo cap) |
 | **Standard** | For-profit programs, camps, tutoring | $25 | $750 | $4,500/yr |
 | **Premium** | Logo placement + targeting + analytics | $50 | $1,250 | Custom |
-| **DSD Ads (employee channel)** | Vendor → ~8K employees | — | $150 base | Bundle with parent districtwide for $1,500 |
+| **the district Ads (employee channel)** | Vendor → ~8K employees | — | $150 base | Bundle with parent districtwide for $1,500 |
 
 **Sponsor program (annual recurring):**
 - Champion $25K · Patron $10K · Partner $5K · Friend $1,500
@@ -640,9 +633,9 @@ Codex was clear: don't ship pricing without internal sign-off. This is the propo
 - Schedule boost (peak window) +$50
 - AI-translated Spanish — free, marketed as differentiator
 
-**The Peachjar comparison anchor:** $25 × 92 schools = $2,300 for one district-wide flyer on Peachjar today. DEF Flyers's Local Nonprofit tier puts the same reach at $300. That's the headline.
+**The Peachjar comparison anchor:** $25 × 92 schools = $2,300 for one district-wide flyer on Peachjar today. Parent Express's Local Nonprofit tier puts the same reach at $300. That's the headline.
 
-**Stripe rule:** flyer revenue runs through a **separate Stripe account** at standard 2.9% + $0.30. DEF's existing donation account stays untouched to preserve the 2.2% nonprofit rate (which only applies if >80% of volume is tax-deductible donations).
+**Stripe rule:** flyer revenue runs through a **separate Stripe account** at standard 2.9% + $0.30. Parent Express's existing donation account stays untouched to preserve the 2.2% nonprofit rate (which only applies if >80% of volume is tax-deductible donations).
 
 ---
 
@@ -659,8 +652,8 @@ From Codex's review, plus a few additions:
 7. **MailChannels is dead.** Postmark + SES from Day 1.
 8. **Worker CPU limit on inline AI calls.** Never call Claude vision in a fetch handler. Always Queue Consumer.
 9. **D1 has no cross-DB JOINs.** Single DB, archive event logs to R2.
-10. **Generic short-link domains get carrier-filtered.** `go.daviskids.org` only.
-11. **Peachjar vendor lock-in clause.** Until current Peachjar agreement expires, DEF (not DSD) is the contracting party with parents. Every parent surface reads "from DEF, in partnership with DSD."
+10. **Generic short-link domains get carrier-filtered.** `go.wickowaypoint.com` only.
+11. **Peachjar vendor lock-in clause.** Until current Peachjar agreement expires, Parent Express (not the district) is the contracting party with parents. Every parent surface reads "from Parent Express, in partnership with the district."
 12. **Vectorize indexing delay.** 60–90 seconds after upsert before vectors are queryable. Don't treat empty results as failure immediately.
 13. **TV/podcast audio noise** (carryover Skippy lesson — non-issue here, but a reminder that classification layers matter).
 14. **Two Codex sessions on the same repo simultaneously.** Standing rule. Don't.
@@ -690,11 +683,11 @@ Hour 1–2 — repo + infra
 [ ] Confirm skippy-memory dimension is 768 (Scott's memories say yes; verify before first embed)
 
 Hour 3–4 — DNS + email auth
-[ ] flyers.daviskids.org A record → CF
-[ ] go.daviskids.org A record → CF
-[ ] mail.daviskids.org SPF + DKIM + DMARC (Postmark + SES dual-vendor)
-[ ] Postmark server "def-flyers-transactional" created, daviskids.org domain verified
-[ ] AWS SES sending identity for daviskids.org, request production access (out of sandbox — takes 24h)
+[ ] flyers.wickowaypoint.com A record → CF
+[ ] go.wickowaypoint.com A record → CF
+[ ] mail.wickowaypoint.com SPF + DKIM + DMARC (Postmark + SES dual-vendor)
+[ ] Postmark server "def-flyers-transactional" created, wickowaypoint.com domain verified
+[ ] AWS SES sending identity for wickowaypoint.com, request production access (out of sandbox — takes 24h)
 [ ] wrangler secret put POSTMARK_API_KEY
 [ ] wrangler secret put AWS_SES_KEY / AWS_SES_SECRET
 [ ] wrangler secret put ANTHROPIC_API_KEY
@@ -704,7 +697,7 @@ Hour 5–6 — Astro + Hono skeleton
 [ ] npm create astro, @astrojs/cloudflare adapter, Tailwind
 [ ] Three skeleton pages: /, /submit, /flyer/[id]
 [ ] Hono Worker with three routes: POST /api/submit, GET /api/flyer/:id, POST /api/parent/optin
-[ ] Push to main, verify Pages auto-deploys to flyers.daviskids.org
+[ ] Push to main, verify Pages auto-deploys to flyers.wickowaypoint.com
 [ ] Drizzle config + first migration (0001_init.sql) applied to D1
 
 Hour 7–9 — AI pipeline scaffold
@@ -723,8 +716,8 @@ Hour 10–12 — reviewer queue + first end-to-end
 [ ] Verify deliverability in Gmail and Outlook (both Hale family Microsoft license and personal Gmail)
 
 Hour 13 — landing pages
-[ ] Replace daviskids.org/advertise-peachjar.html with "Coming soon — submit at flyers.daviskids.org"
-[ ] Replace daviskids.org/advertise-dsd-ads.html similarly
+[ ] Replace wickowaypoint.com/advertise-peachjar.html with "Coming soon — submit at flyers.wickowaypoint.com"
+[ ] Replace wickowaypoint.com/advertise-dsd-ads.html similarly
 [ ] CSS-only edits to def-site repo, never sed on HTML (standing rule)
 ```
 
@@ -749,14 +742,14 @@ Nightly on staging:
 
 ## 14. Open questions for Scott to resolve in Phase 0
 
-1. **Sender of record.** DEF or DSD? (Recommendation: DEF, because of Peachjar's vendor lock-in.)
-2. **Peachjar termination clause** — when can DEF exit cleanly?
+1. **Sender of record.** Parent Express or the district? (Recommendation: Parent Express, because of Peachjar's vendor lock-in.)
+2. **Peachjar termination clause** — when can Parent Express exit cleanly?
 3. **Current dsdads sender platform** — district mail server? Constant Contact? Mailchimp? M365 distribution group?
 4. **Karah Crosby + Sherry Miggin sign-off on rate card** (§10).
 5. **Bateman's timeline for Entra app registration.** Critical-path for Phase 1 admin auth.
-6. **District communications office contact** (the current "Admin. Asst./Peachjar" role) — preview the new approval workflow with them so they don't perceive DEF as taking authority.
+6. **District communications office contact** (the current "Admin. Asst./Peachjar" role) — preview the new approval workflow with them so they don't perceive Parent Express as taking authority.
 7. **Davis SD board policy on "distribution of materials."** Likely indexed only inside the policy-manual PDF tree. Scott pulls.
-8. **DEF brand book / `/about-brand.html` source from def-site repo.** Pull color hex, logo, typography into `public/styles.css`.
+8. **Parent Express brand book / `/about-brand.html` source from def-site repo.** Pull color hex, logo, typography into `public/styles.css`.
 9. **Twilio account** (SID in Scott's memories, redacted from public docs) — confirm brand registration status and any prior campaign attempts before submitting fresh.
 10. **Existing donation Stripe account** — confirm current pricing tier (standard or 2.2% nonprofit) before opening the second account.
 
@@ -803,9 +796,9 @@ For Codex's reference:
 
 ## 17. Conclusion
 
-**The product:** one platform, two tenants (parents + employees), submit → AI-assist → human-approve → publish → notify → measure. Email-only at launch. SMS when 10DLC APPROVED. WCAG 2.1 AA from Day 1. HTML-first, PDF supplemental. EN + ES. DEF as contracting party with parents. Separate Stripe account.
+**The product:** one platform, two tenants (parents + employees), submit → AI-assist → human-approve → publish → notify → measure. Email-only at launch. SMS when 10DLC APPROVED. WCAG 2.1 AA from Day 1. HTML-first, PDF supplemental. EN + ES. Parent Express as contracting party with parents. Separate Stripe account.
 
-**The strategic prize is not the flyer revenue.** It is the opted-in parent communication channel that DEF owns end-to-end — a 50,000-household double-opt-in list that doesn't exist today and that seeds every Parent Hub feature DEF will ship over the next three years.
+**The strategic prize is not the flyer revenue.** It is the opted-in parent communication channel that Parent Express owns end-to-end — a 50,000-household double-opt-in list that doesn't exist today and that seeds every Parent Hub feature Parent Express will ship over the next three years.
 
 **The research is done. The architecture is decided.** The only thing standing between today and a working flyer round-trip on Day 1 is closing the Phase 0 governance checklist.
 

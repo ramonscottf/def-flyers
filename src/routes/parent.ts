@@ -33,8 +33,8 @@ const CONSENT_POLICY_VERSION = '2026-04-29.1';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const CONSENT_TEXT = {
-  en: 'I agree to receive DEF Flyers email from Davis Education Foundation in partnership with Davis School District. I understand I can unsubscribe at any time using the link in every email.',
-  es: 'Acepto recibir correos electrónicos de DEF Flyers de Davis Education Foundation en colaboración con Davis School District. Entiendo que puedo cancelar mi suscripción en cualquier momento usando el enlace en cada correo electrónico.',
+  en: 'I agree to receive Parent Express email updates. I understand I can unsubscribe at any time using the link in every email.',
+  es: 'Acepto recibir correos electrónicos de Parent Express. Entiendo que puedo cancelar mi suscripción en cualquier momento usando el enlace en cada correo electrónico.',
 } as const;
 
 function escapeHtml(s: string | null | undefined): string {
@@ -82,7 +82,7 @@ function renderOptinPage(opts: RenderFormOpts): string {
     : '';
   return `<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign up · DEF Flyers</title>
+<title>Sign up · Parent Express</title>
 <style>${SHARED_CSS}
   .check{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;cursor:pointer}
   .check:hover{background:#eef1fa}
@@ -96,10 +96,10 @@ function renderOptinPage(opts: RenderFormOpts): string {
 </style></head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
-<header class="bar"><div class="inner"><h1><a href="/" style="color:#fff;text-decoration:none;">DEF Flyers</a></h1><a href="/board">Board</a></div></header>
+<header class="bar"><div class="inner"><h1><a href="/" style="color:#fff;text-decoration:none;">Parent Express</a></h1><a href="/board">Board</a></div></header>
 <main id="main">
   ${flash}
-  <h2>Sign up for DEF Flyers</h2>
+  <h2>Sign up for Parent Express</h2>
   <p>Get the flyers and announcements that matter for your kids' schools. Pick which schools and language. Unsubscribe anytime with one click.</p>
   <form method="POST" action="/parent/optin" novalidate>
     <label for="email">Email address</label>
@@ -121,7 +121,7 @@ function renderOptinPage(opts: RenderFormOpts): string {
     <p class="consent" style="margin-top:12px;">By signing up you agree to our <a href="/policies/privacy">privacy policy</a>. We'll send a confirmation email — your subscription is not active until you click the link in it.</p>
   </form>
 </main>
-<footer>Davis Education Foundation · <a href="https://daviskids.org">daviskids.org</a></footer>
+<footer>Parent Express · © Wicko Waypoint · <a href="https://wickowaypoint.com">wickowaypoint.com</a></footer>
 </body></html>`;
 }
 
@@ -153,13 +153,13 @@ footer{border-top:1px solid var(--rule);padding:20px 24px;text-align:center;colo
 function infoPage(opts: { title: string; body: string }): string {
   return `<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${escapeHtml(opts.title)} · DEF Flyers</title>
+<title>${escapeHtml(opts.title)} · Parent Express</title>
 <style>${SHARED_CSS}</style></head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
-<header class="bar"><div class="inner"><h1><a href="/" style="color:#fff;text-decoration:none;">DEF Flyers</a></h1><a href="/board">Board</a></div></header>
+<header class="bar"><div class="inner"><h1><a href="/" style="color:#fff;text-decoration:none;">Parent Express</a></h1><a href="/board">Board</a></div></header>
 <main id="main">${opts.body}</main>
-<footer>Davis Education Foundation · <a href="https://daviskids.org">daviskids.org</a></footer>
+<footer>Parent Express · © Wicko Waypoint · <a href="https://wickowaypoint.com">wickowaypoint.com</a></footer>
 </body></html>`;
 }
 
@@ -430,7 +430,7 @@ pages.get('/verify-subscription', async (c) => {
   return c.html(infoPage({
     title: 'You\'re subscribed',
     body: `<h2>You're subscribed</h2>
-<p>Thanks, ${escapeHtml(row.email)}. You'll start receiving DEF Flyers when new ones publish for your selected schools.</p>
+<p>Thanks, ${escapeHtml(row.email)}. You'll start receiving Parent Express when new ones publish for your selected schools.</p>
 <p><a href="/board">Browse the flyer board →</a></p>`,
   }));
 });
@@ -438,7 +438,7 @@ pages.get('/verify-subscription', async (c) => {
 // ─── GET /preferences (?t=unsubscribe_token) ───────────────────────────────
 pages.get('/preferences', async (c) => {
   const token = c.req.query('t') ?? '';
-  if (!token) return c.html(infoPage({ title: 'Missing token', body: '<h2>Missing token</h2><p>This page needs a token from one of your DEF Flyers emails.</p>' }), 400);
+  if (!token) return c.html(infoPage({ title: 'Missing token', body: '<h2>Missing token</h2><p>This page needs a token from one of your Parent Express emails.</p>' }), 400);
   const sub = await c.env.DB.prepare(
     `SELECT id, email, school_ids, language, active FROM subscriptions WHERE unsubscribe_token = ?`,
   )
@@ -473,9 +473,9 @@ pages.get('/preferences', async (c) => {
 </form>
 <form method="POST" action="/unsubscribe" style="margin-top:16px;">
   <input type="hidden" name="t" value="${escapeHtml(token)}">
-  <button class="btn danger" type="submit">Unsubscribe from all DEF Flyers</button>
+  <button class="btn danger" type="submit">Unsubscribe from all Parent Express</button>
 </form>`;
-  return c.html(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Preferences · DEF Flyers</title>
+  return c.html(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Preferences · Parent Express</title>
 <style>${SHARED_CSS}
   .check{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px}
   .check:hover{background:#eef1fa}.check .lvl{margin-left:auto;font-size:12px;color:var(--ink-2);text-transform:uppercase}
@@ -486,9 +486,9 @@ pages.get('/preferences', async (c) => {
 </style></head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
-<header class="bar"><div class="inner"><h1><a href="/" style="color:#fff;text-decoration:none;">DEF Flyers</a></h1><a href="/board">Board</a></div></header>
+<header class="bar"><div class="inner"><h1><a href="/" style="color:#fff;text-decoration:none;">Parent Express</a></h1><a href="/board">Board</a></div></header>
 <main id="main">${body}</main>
-<footer>Davis Education Foundation · <a href="https://daviskids.org">daviskids.org</a></footer>
+<footer>Parent Express · © Wicko Waypoint · <a href="https://wickowaypoint.com">wickowaypoint.com</a></footer>
 </body></html>`);
 });
 
@@ -546,7 +546,7 @@ pages.get('/unsubscribe', async (c) => {
   if (!token) {
     return c.html(infoPage({
       title: 'Unsubscribe',
-      body: '<h2>Unsubscribe</h2><p>This page needs the token from your DEF Flyers email. Use the unsubscribe link in any DEF Flyers email and you\'ll land here automatically.</p>',
+      body: '<h2>Unsubscribe</h2><p>This page needs the token from your Parent Express email. Use the unsubscribe link in any Parent Express email and you\'ll land here automatically.</p>',
     }), 400);
   }
   const sub = await c.env.DB.prepare(
@@ -610,7 +610,7 @@ pages.post('/unsubscribe', async (c) => {
 
   return c.html(infoPage({
     title: 'Unsubscribed',
-    body: `<h2>You're unsubscribed</h2><p>${escapeHtml(sub.email)} will no longer receive DEF Flyers email. You can <a href="/parent">re-subscribe at any time</a>.</p>`,
+    body: `<h2>You're unsubscribed</h2><p>${escapeHtml(sub.email)} will no longer receive Parent Express email. You can <a href="/parent">re-subscribe at any time</a>.</p>`,
   }));
 });
 
